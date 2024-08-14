@@ -3,6 +3,7 @@ package com.webtools.ayasha.WebProject;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 @SpringBootApplication(scanBasePackages = {"com.webtools.ayasha.WebProject"})
@@ -12,4 +13,18 @@ public class WebProjectApplication {
 		SpringApplication.run(WebProjectApplication.class, args);
 	}
 
+        @GetMapping("/")
+	public String landing() {
+		return "hello";
+	}
+        
+        @GetMapping("/login.htm")
+	public String loginPage() {
+		return "login";
+	}
+        
+        @GetMapping("/register.htm")
+	public String registerPage() {
+		return "register";
+	}
 }
