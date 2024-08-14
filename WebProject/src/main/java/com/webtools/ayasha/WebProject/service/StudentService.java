@@ -50,6 +50,11 @@ public class StudentService {
     public void deleteStudent(Student student) {
         studentDAO.delete(student);
     }
+    
+    public boolean checkPassword(String rawPassword, String storedPassword) {
+        // Plain text comparison
+        return rawPassword.equals(storedPassword);
+    }
 }
 
     
