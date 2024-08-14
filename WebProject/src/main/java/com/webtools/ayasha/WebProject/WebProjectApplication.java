@@ -27,4 +27,24 @@ public class WebProjectApplication {
 	public String registerPage() {
 		return "register";
 	}
+        
+        @GetMapping("/register-Success.htm")
+	public String registrationSuccessPage() {
+		return "registration-success";
+	}
+        
+        @GetMapping("/add-course.htm")
+	public String addCoursePage() {
+		return "add-course";
+	}
+        
+        @GetMapping("/add-course-success.htm")
+	public String addCourseSuccessPage() {
+		return "add-course-success";
+	}
+        
+        @GetMapping("/my-courses.htm")
+	public String myCoursesPage() {
+		return "my-courses";
+	}
 }

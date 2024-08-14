@@ -67,7 +67,7 @@
 <body>
     <div class="register-container">
         <h2>Register</h2>
-        <form action="register" method="post">
+        <form action="register-Success.htm" method="post">
             <input type="text" name="firstName" placeholder="First Name" required>
             <input type="text" name="lastName" placeholder="Last Name" required>
             <input type="email" name="emailId" placeholder="Email" required>
