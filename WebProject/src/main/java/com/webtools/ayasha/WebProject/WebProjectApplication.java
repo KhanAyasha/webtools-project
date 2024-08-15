@@ -21,11 +21,7 @@ public class WebProjectApplication {
 		return "hello";
 	}
         
-        @GetMapping("/access-denied.htm")
-	public String accessDenied() {
-            System.out.println("inside access denied");
-		return "access-denied";
-	}
+        
         
         @GetMapping("/add-course.htm")
 	public String addCoursePage() {

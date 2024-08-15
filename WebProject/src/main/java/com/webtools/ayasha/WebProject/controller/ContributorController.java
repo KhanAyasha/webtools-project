@@ -6,11 +6,15 @@ package com.webtools.ayasha.WebProject.controller;
 
 import com.webtools.ayasha.WebProject.model.Contributor;
 import com.webtools.ayasha.WebProject.service.ContributorService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -41,6 +45,15 @@ public class ContributorController {
         return contributorService.getAllContributor();
     }
     
+    
+    @GetMapping("/home.htm")
+    public String homePage(HttpSession session, Model model) {
+        System.out.println("hit home contributor");
+        String role = (String) session.getAttribute("role");
+        model.addAttribute("role", role);
+        return "home";
+    }
+    
     @PutMapping("/update/{contributorId}")
     public ResponseEntity<String> updateContributor(@PathVariable long contributorId, @RequestBody Contributor updatedContributor) {
         // Find the contributor by ID
@@ -61,4 +74,13 @@ public class ContributorController {
         }
     }
     
+    
+    @GetMapping("/logout.htm")
+    public String logout(HttpServletRequest request, HttpServletResponse response) {
+        HttpSession session = request.getSession(false);
+        if(session != null) {
+            session.invalidate();
+        }
+        return "redirect:/login.htm?logout=true";
+    }
 }

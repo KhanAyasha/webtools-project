@@ -32,18 +32,23 @@ public class RoleBasedAccessFilter extends OncePerRequestFilter {
 
             System.out.println("Role: " + role);
             System.out.println("Request URI: " + requestURI);
+            
+//            if(!requestURI.equals("/WebProject/images/background.jpg")){
+               
+            
 
-            if (requestURI.contains("/contributor") && !"contributor".equalsIgnoreCase(role)) {
-                System.out.println("Access denied to contributor URL");
-                response.sendRedirect("/WebProject/access-denied.htm");
-                return;
-            }
+                if (requestURI.contains("/contributor") && !"contributor".equalsIgnoreCase(role)) {
+                    System.out.println("Access denied to contributor URL");
+                    response.sendRedirect("/WebProject/access-denied.htm");
+                    return;
+                }
 
-            if (requestURI.contains("/student/") && !"student".equalsIgnoreCase(role)) {
-                System.out.println("Access denied to student URL");
-                response.sendRedirect("/WebProject/access-denied.htm");
-                return;
-            }
+                if (requestURI.contains("/student/") && !"student".equalsIgnoreCase(role)) {
+                    System.out.println("Access denied to student URL");
+                    response.sendRedirect("/WebProject/access-denied.htm");
+                    return;
+                }
+//            }
         }
 
         filterChain.doFilter(request, response);

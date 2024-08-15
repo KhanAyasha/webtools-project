@@ -36,16 +36,22 @@ public class AuthController {
         this.passwordEncoder = new BCryptPasswordEncoder(); // Initialize the encoder
     }
     
+    @GetMapping("/access-denied.htm")
+	public String accessDenied() {
+            System.out.println("inside access denied");
+		return "access-denied";
+	}    
     
     @GetMapping("/login.htm")
     public String loginPage(Model model, HttpServletRequest request) {
+        System.out.println("Inside get login endpoint");
         HttpSession httpSession = request.getSession(false);
         if(httpSession != null) {
             if (null != httpSession.getAttribute("role")) {
                if (httpSession.getAttribute("role").equals("student")) {
-                    return "redirect:/student-home.htm";
+                    return "redirect:/student/home.htm";
                 } else if (httpSession.getAttribute("role").equals("student")){
-                    return "redirect:/contributor-home.htm";
+                    return "redirect:/contributor/home.htm";
                 }
             }//role
         
@@ -71,11 +77,13 @@ public class AuthController {
             if ("student".equalsIgnoreCase(role)) {
                 httpSession.setAttribute("role", role.toLowerCase());
                 httpSession.setAttribute("emailId", emailId);
-                return "redirect:/student-home.htm";
+                System.out.println("login success, going student home"+emailId);
+                return "redirect:/student/home.htm";
             } else if ("contributor".equalsIgnoreCase(role)) {
                 httpSession.setAttribute("role", role.toLowerCase());
                 httpSession.setAttribute("emailId", emailId);
-                return "redirect:/contributor-home.htm";
+                System.out.println("login success, going contri home"+emailId);
+                return "redirect:/contributor/home.htm";
             }
         }
         System.out.println("You got some error");
@@ -87,13 +95,14 @@ public class AuthController {
 
     @GetMapping("/register.htm")
     public String registerPage(Model model, HttpServletRequest request) {
+        System.out.println("Inside get login endpoint");
         HttpSession httpSession = request.getSession(false);
         if (httpSession != null) {
             if (null != httpSession.getAttribute("role")) {
                 if (httpSession.getAttribute("role").equals("student")) {
-                    return "redirect:/student-home.htm";
+                    return "redirect:/student/home.htm";
                 } else if (httpSession.getAttribute("role").equals("contributor")) {
-                    return "redirect:/contributor-home.htm";
+                    return "redirect:/contributor/home.htm";
                 }
             }
         }
@@ -127,6 +136,7 @@ public class AuthController {
 
             // Set session attribute and redirect to student home page
             session.invalidate();
+            System.out.println("before directing to successful registeration page");
             return "redirect:/register-Success.htm";
 
         } else if ("contributor".equalsIgnoreCase(role)) {
@@ -163,6 +173,7 @@ public class AuthController {
         
     @GetMapping("/register-Success.htm")
     public String registrationSuccessPage() {
+        System.out.println("User is successfully registered!");
 	return "registration-success";
     }
 

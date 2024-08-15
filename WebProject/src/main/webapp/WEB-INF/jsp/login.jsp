@@ -15,6 +15,7 @@
             background-size: cover;
             font-family: Arial, sans-serif;
             color: #fff;
+            background-color: #8092a2;
         }
         .login-container {
             max-width: 400px;

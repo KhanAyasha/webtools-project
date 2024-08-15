@@ -19,6 +19,7 @@
             text-align: center;
             padding: 0;
             margin: 0;
+            background-color: #8092a2;
         }
 
         .container {
