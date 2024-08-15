@@ -6,6 +6,7 @@ import com.password4j.types.Bcrypt;
 import com.webtools.ayasha.WebProject.dao.ContributorDAO;
 import com.webtools.ayasha.WebProject.dao.StudentDAO;
 import com.webtools.ayasha.WebProject.model.Contributor;
+import com.webtools.ayasha.WebProject.model.LoginRequest;
 import com.webtools.ayasha.WebProject.model.RegisterRequest;
 import com.webtools.ayasha.WebProject.model.Student;
 import com.webtools.ayasha.WebProject.service.ContributorService;
@@ -58,34 +59,37 @@ public class AuthController {
         return "login";
     }
         
-    
-//    @PostMapping("/register")
-//    public ResponseEntity<String> register(@RequestBody Student newStudent) {
-//        Optional<Student> existingStudent = studentService.findByEmailId(newStudent.getEmailId());
-//        if (existingStudent.isPresent()) {
-//            return ResponseEntity.status(409).body("Email is already registered.");
-//        }
-//
-//        studentService.saveStudent(newStudent);
-//        return ResponseEntity.status(201).body("Registration successful.");
-//    }
-    
-    
+    @PostMapping("/login.htm")
+    public String login(@RequestBody LoginRequest loginRequest, HttpServletRequest request) {
+        System.out.println("Login endpoint hit");
+        HttpSession httpSession = request.getSession();
+        String emailId = loginRequest.getEmailId();
+        System.out.println("email id taken"+emailId);
+        String password = loginRequest.getPassword();
+        String role = loginRequest.getRole();
 
-//    @PostMapping("/login")
-//    public ResponseEntity<String> login(@RequestBody Student loginRequest) {
-//        Optional<Student> studentOptional = studentService.findByEmailId(loginRequest.getEmailId());
-//        if (studentOptional.isPresent()) {
-//            Student student = studentOptional.get();
-//            if (studentService.checkPassword(loginRequest.getPassword(), student.getPassword())) {
-//                return ResponseEntity.ok("Login successful.");
-//            } else {
-//                return ResponseEntity.status(401).body("Invalid credentials.");
-//            }
-//        } else {
-//            return ResponseEntity.status(404).body("Student not found.");
-//        }
-//    }
+        // Use the existing method to check credentials and get the user
+        Object user = checkCredentialsAndGetUser(emailId, password, role);
+
+        if (user != null) {
+            // Set session attributes based on role
+            System.out.println("I got the user"+user.toString());
+            if ("student".equalsIgnoreCase(role)) {
+                httpSession.setAttribute("role", "student");
+                httpSession.setAttribute("emailId", emailId);
+                return "redirect:/student-home.htm";
+            } else if ("contributor".equalsIgnoreCase(role)) {
+                httpSession.setAttribute("role", "contributor");
+                httpSession.setAttribute("emailId", emailId);
+                return "redirect:/contributor-home.htm";
+            }
+        }
+        System.out.println("You got some error");
+        // If credentials are invalid
+        return "redirect:/login.htm?error=Invalid credentials or role";
+    }
+
+
 
     @GetMapping("/register.htm")
     public String registerPage(Model model, HttpServletRequest request) {
@@ -176,36 +180,28 @@ public class AuthController {
     }
 //   
     
-    private Object checkCredentialsAndGetUser(String email, String password, String role) {
-        
-        Student student = null;
-        Contributor contributor = null;
-        
-        boolean verified = false;
-        
-        if(role == null)
-            return null;
-        
-        
-        if(role.equals("student")){    
-            student = studentDAO.findByEmailId(email); 
-            if(student == null)
+    public Object checkCredentialsAndGetUser(String emailId, String password, String role) {
+        if (role == null) return null;
+        System.out.println(emailId);
+
+        if (role.equals("student")) {    
+            Student student = studentDAO.findByEmailId(emailId);
+            if (student == null) {
+                System.out.println("student is still null");
                 return null;
-            verified = (email.equals(student.getEmailId()) && password.equals(student.getPassword()));
-        }else if(role.equals("contributor")){
-            if(contributor == null)
-                return null;
-            contributor = contributorDAO.findByEmailId(email);
-            verified = (email.equals(contributor.getEmailId()) && password.equals(contributor.getPassword()));
+            }
+            boolean verified = emailId.equals(student.getEmailId()) && password.equals(student.getPassword());
+            return verified ? student : null;
+
+        } else if (role.equals("contributor")) {
+            Contributor contributor = contributorDAO.findByEmailId(emailId);
+            if (contributor == null) return null;
+            boolean verified = emailId.equals(contributor.getEmailId()) && password.equals(contributor.getPassword());
+            return verified ? contributor : null;
         }
-        
-        if(verified) {
-            if(student != null)
-                return student;
-            else return contributor;
-                       
-        }
+
         return null;
     }
+
 
 }
