@@ -78,10 +78,10 @@
                     return;
                 }
 
-                if (!password.match(passwordRegex)) {
-                    alert("Password must be at least 8 characters long, with at least one uppercase letter, one lowercase letter, and one number.");
-                    return;
-                }
+//                if (!password.match(passwordRegex)) {
+//                    alert("Password must be at least 8 characters long, with at least one uppercase letter, one lowercase letter, and one number.");
+//                    return;
+//                }
 
                 if (role === "") {
                     alert("Please select a role.");

@@ -1,25 +1,16 @@
 package com.webtools.ayasha.WebProject.controller;
 
-import com.password4j.BcryptFunction;
-import com.password4j.Password;
-import com.password4j.types.Bcrypt;
+
 import com.webtools.ayasha.WebProject.dao.ContributorDAO;
 import com.webtools.ayasha.WebProject.dao.StudentDAO;
 import com.webtools.ayasha.WebProject.model.Contributor;
 import com.webtools.ayasha.WebProject.model.LoginRequest;
 import com.webtools.ayasha.WebProject.model.RegisterRequest;
 import com.webtools.ayasha.WebProject.model.Student;
-import com.webtools.ayasha.WebProject.service.ContributorService;
-import com.webtools.ayasha.WebProject.service.StudentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-//import org.springframework.security.crypto.password.PasswordEncoder;
-//import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -28,8 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+
 //
 @Controller
 @RequestMapping("/")
@@ -79,11 +69,11 @@ public class AuthController {
             // Set session attributes based on role
             System.out.println("I got the user"+user.toString());
             if ("student".equalsIgnoreCase(role)) {
-                httpSession.setAttribute("role", "student");
+                httpSession.setAttribute("role", role.toLowerCase());
                 httpSession.setAttribute("emailId", emailId);
                 return "redirect:/student-home.htm";
             } else if ("contributor".equalsIgnoreCase(role)) {
-                httpSession.setAttribute("role", "contributor");
+                httpSession.setAttribute("role", role.toLowerCase());
                 httpSession.setAttribute("emailId", emailId);
                 return "redirect:/contributor-home.htm";
             }
@@ -192,6 +182,7 @@ public class AuthController {
 
         if (role.equals("student")) {    
             Student student = studentDAO.findByEmailId(emailId);
+            System.out.println("email"+emailId);
             if (student == null) {
                 System.out.println("student is still null");
                 return null;

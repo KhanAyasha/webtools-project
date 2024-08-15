@@ -39,7 +39,7 @@ public class StudentDAO extends BaseDAO{
     
     public Student findByEmailId(String emailId) {
             return getSession()
-                    .createNamedQuery("selectByContributorEmailId", Student.class)
+                    .createNamedQuery("selectByStudentEmailId", Student.class)
                     .setParameter("emailId", emailId)
                     .uniqueResult();
         }
