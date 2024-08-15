@@ -20,6 +20,8 @@ import org.springframework.http.ResponseEntity;
 //import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,11 +37,13 @@ public class AuthController {
     
     private final StudentDAO studentDAO;
     private final ContributorDAO contributorDAO;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public AuthController(StudentDAO studentDAO, ContributorDAO contributorDAO) {
         this.studentDAO = studentDAO;
         this.contributorDAO = contributorDAO;
+        this.passwordEncoder = new BCryptPasswordEncoder(); // Initialize the encoder
     }
     
     
@@ -126,7 +130,8 @@ public class AuthController {
             student.setFirstName(requestBody.getFirstName());
             student.setLastName(requestBody.getLastName());
             student.setEmailId(requestBody.getEmailId());
-            student.setPassword(requestBody.getPassword());
+            student.setPassword(passwordEncoder.encode(requestBody.getPassword()));
+//            student.setPassword(requestBody.getPassword());
             student.setMajor(requestBody.getMajor());
             studentDAO.save(student);
 
@@ -146,7 +151,8 @@ public class AuthController {
             contributor.setFirstName(requestBody.getFirstName());
             contributor.setLastName(requestBody.getLastName());
             contributor.setEmailId(requestBody.getEmailId());
-            contributor.setPassword(requestBody.getPassword());
+            contributor.setPassword(passwordEncoder.encode(requestBody.getPassword()));
+//            contributor.setPassword(requestBody.getPassword());
             int experienceYears = (requestBody.getExperienceYears() != null) ? requestBody.getExperienceYears() : 0;
             contributor.setExperienceYears(experienceYears);
 
@@ -190,13 +196,15 @@ public class AuthController {
                 System.out.println("student is still null");
                 return null;
             }
-            boolean verified = emailId.equals(student.getEmailId()) && password.equals(student.getPassword());
+            System.out.println("student password " + student.getPassword() );
+            boolean verified = emailId.equals(student.getEmailId()) && passwordEncoder.matches(password, student.getPassword());
             return verified ? student : null;
 
         } else if (role.equals("contributor")) {
             Contributor contributor = contributorDAO.findByEmailId(emailId);
             if (contributor == null) return null;
-            boolean verified = emailId.equals(contributor.getEmailId()) && password.equals(contributor.getPassword());
+            System.out.println("contribuot password " + contributor.getPassword() );
+            boolean verified = emailId.equals(contributor.getEmailId()) && passwordEncoder.matches(password, contributor.getPassword());
             return verified ? contributor : null;
         }
 

@@ -38,30 +38,11 @@ public class StudentDAO extends BaseDAO{
     }
     
     public Student findByEmailId(String emailId) {
-        if (emailId == null || emailId.trim().isEmpty()) {
-            return null; // Handle empty or null email input
+            return getSession()
+                    .createNamedQuery("selectByContributorEmailId", Student.class)
+                    .setParameter("emailId", emailId)
+                    .uniqueResult();
         }
-
-        Session session = getSession();
-        Transaction transaction = null;
-        Student student = null;
-
-        try {
-            transaction = session.beginTransaction();
-            student = session.createNamedQuery("selectByStudentEmailId", Student.class)
-                             .setParameter("emailId", emailId)
-                             .uniqueResult();
-            transaction.commit();
-            System.out.println("transaction completed"+ student.getEmailId());
-        } catch (Exception e) {
-            if (transaction != null) transaction.rollback();
-            e.printStackTrace();
-        } finally {
-            session.close(); // Close the session if manually managed
-        }
-        System.out.println("student returned");
-        return student;
-    }
 
 
     public Optional<Student> findById(long studentId) {
