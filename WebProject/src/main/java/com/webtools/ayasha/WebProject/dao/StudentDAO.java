@@ -36,11 +36,11 @@ public class StudentDAO extends BaseDAO{
         return studentList;
     }
     
-    public Optional<Student> findByEmailId(String emailId) {
+    public Student findByEmailId(String emailId) {
             return getSession()
                     .createNamedQuery("selectByStudentEmailId", Student.class)
                     .setParameter("emailId", emailId)
-                    .uniqueResultOptional();
+                    .uniqueResult();
         }
 
     public Optional<Student> findById(long studentId) {
@@ -49,11 +49,23 @@ public class StudentDAO extends BaseDAO{
     }
 
     public void save(Student student) {
-        beginTransaction();
-        getSession().save(student);
-        commitTransaction();
-        closeSession();
+        try {
+            beginTransaction();
+            getSession().save(student);
+            commitTransaction();
+            System.out.println("Student saved successfully");
+        } catch (Exception e) {
+            System.err.println("Error saving student: " + e.getMessage());
+            e.printStackTrace();
+            if (getSession().getTransaction() != null) {
+                getSession().getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            closeSession();
+        }
     }
+
 
     public void update(Student student) {
         beginTransaction();

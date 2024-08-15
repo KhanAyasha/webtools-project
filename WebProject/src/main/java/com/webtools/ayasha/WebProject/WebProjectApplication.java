@@ -18,20 +18,7 @@ public class WebProjectApplication {
 		return "hello";
 	}
         
-        @GetMapping("/login.htm")
-	public String loginPage() {
-		return "login";
-	}
         
-        @GetMapping("/register.htm")
-	public String registerPage() {
-		return "register";
-	}
-        
-        @GetMapping("/register-Success.htm")
-	public String registrationSuccessPage() {
-		return "registration-success";
-	}
         
         @GetMapping("/add-course.htm")
 	public String addCoursePage() {

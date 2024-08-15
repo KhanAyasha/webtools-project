@@ -37,7 +37,7 @@ public class ContributorService {
         return contributorDAO.findById(contributorId);
     }
 
-    public Optional<Contributor> findByEmailId(String emailId) {
+    public Contributor findByEmailId(String emailId) {
         return contributorDAO.findByEmailId(emailId);
     }
 

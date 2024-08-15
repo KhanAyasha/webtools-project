@@ -32,11 +32,11 @@ public class ContributorDAO extends BaseDAO{
         return contributorList;
     }
     
-    public Optional<Contributor> findByEmailId(String emailId) {
+    public Contributor findByEmailId(String emailId) {
             return getSession()
                     .createNamedQuery("selectByContributorEmailId", Contributor.class)
                     .setParameter("emailId", emailId)
-                    .uniqueResultOptional();
+                    .uniqueResult();
         }
 
     public Optional<Contributor> findById(long contributorId) {
@@ -45,11 +45,23 @@ public class ContributorDAO extends BaseDAO{
     }
 
     public void save(Contributor contributor) {
-        beginTransaction();
-        getSession().save(contributor);
-        commitTransaction();
-        closeSession();
+        try {
+            beginTransaction();
+            getSession().save(contributor);
+            commitTransaction();
+            System.out.println("Contributor saved successfully");
+        } catch (Exception e) {
+            System.err.println("Error saving contributor: " + e.getMessage());
+            e.printStackTrace();
+            if (getSession().getTransaction() != null) {
+                getSession().getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            closeSession();
+        }
     }
+
 
     public void update(Contributor contributor) {
         beginTransaction();

@@ -35,7 +35,7 @@ public class StudentService {
         return studentDAO.findById(studentId);
     }
 
-    public Optional<Student> findByEmailId(String emailId) {
+    public Student findByEmailId(String emailId) {
         return studentDAO.findByEmailId(emailId);
     }
 
