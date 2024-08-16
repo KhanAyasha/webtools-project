@@ -44,7 +44,7 @@ public class ContributorDAO extends BaseDAO{
         return Optional.ofNullable(contributor);
     }
 
-    public void save(Contributor contributor) {
+    public void saveContributor(Contributor contributor) {
         try {
             beginTransaction();
             getSession().save(contributor);
@@ -63,18 +63,19 @@ public class ContributorDAO extends BaseDAO{
     }
 
 
-    public void update(Contributor contributor) {
+    public void updateContributor(Contributor contributor) {
         beginTransaction();
         getSession().update(contributor);
         commitTransaction();
         closeSession();
     }
 
-    public void delete(Contributor contributor) {
+    public void deleteContributor(Contributor contributor) {
         beginTransaction();
         getSession().delete(contributor);
         commitTransaction();
         closeSession();
     }
+
     
 }

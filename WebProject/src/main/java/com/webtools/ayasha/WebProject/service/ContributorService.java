@@ -41,16 +41,7 @@ public class ContributorService {
         return contributorDAO.findByEmailId(emailId);
     }
 
-    public void saveContributor(Contributor contributor) {
-        contributorDAO.save(contributor);
-    }
+   
 
-    public void updateContributor(Contributor contributor) {
-        contributorDAO.update(contributor);
-    }
-
-    public void deleteContributor(Contributor contributor) {
-        contributorDAO.delete(contributor);
-    }
     
 }

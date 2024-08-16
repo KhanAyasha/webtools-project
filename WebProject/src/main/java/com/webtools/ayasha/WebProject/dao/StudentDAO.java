@@ -42,7 +42,7 @@ public class StudentDAO extends BaseDAO{
                     .createNamedQuery("selectByStudentEmailId", Student.class)
                     .setParameter("emailId", emailId)
                     .uniqueResult();
-        }
+    }
 
 
     public Optional<Student> findById(long studentId) {
@@ -50,7 +50,7 @@ public class StudentDAO extends BaseDAO{
         return Optional.ofNullable(student);
     }
 
-    public void save(Student student) {
+    public void saveStudent(Student student) {
         try {
             beginTransaction();
             getSession().save(student);
@@ -69,14 +69,14 @@ public class StudentDAO extends BaseDAO{
     }
 
 
-    public void update(Student student) {
+    public void updateStudent(Student student) {
         beginTransaction();
         getSession().update(student);
         commitTransaction();
         closeSession();
     }
 
-    public void delete(Student student) {
+    public void deleteStudent(Student student) {
         beginTransaction();
         getSession().delete(student);
         commitTransaction();

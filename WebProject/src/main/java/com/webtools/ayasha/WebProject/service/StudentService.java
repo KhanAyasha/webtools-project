@@ -39,17 +39,6 @@ public class StudentService {
         return studentDAO.findByEmailId(emailId);
     }
 
-    public void saveStudent(Student student) {
-        studentDAO.save(student);
-    }
-
-    public void updateStudent(Student student) {
-        studentDAO.update(student);
-    }
-
-    public void deleteStudent(Student student) {
-        studentDAO.delete(student);
-    }
     
     public boolean checkPassword(String rawPassword, String storedPassword) {
         // Plain text comparison

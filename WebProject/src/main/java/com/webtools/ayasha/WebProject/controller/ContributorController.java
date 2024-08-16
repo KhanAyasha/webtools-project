@@ -4,6 +4,9 @@
  */
 package com.webtools.ayasha.WebProject.controller;
 
+import com.webtools.ayasha.WebProject.dao.ContributorDAO;
+import com.webtools.ayasha.WebProject.dao.CourseDAO;
+import com.webtools.ayasha.WebProject.dao.SessionDAO;
 import com.webtools.ayasha.WebProject.model.Contributor;
 import com.webtools.ayasha.WebProject.service.ContributorService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,20 +34,34 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/contributor")
 public class ContributorController {
     
-    private final ContributorService contributorService;
+    private final ContributorDAO contributorDAO;
+    private final CourseDAO courseDAO;
+    private final SessionDAO sessionDAO;
 
     @Autowired
-    public ContributorController(ContributorService contributorService) {
-        this.contributorService = contributorService;
+    public ContributorController(ContributorDAO contributorDAO,CourseDAO courseDAO,SessionDAO sessionDAO) {
+        this.contributorDAO = contributorDAO;
+        this.courseDAO =  courseDAO;
+        this.sessionDAO = sessionDAO;
     }
     
-    @GetMapping("/contributors")
+    @GetMapping("/AllContributors")
     @ResponseBody
     public List<Contributor> getAllContributor() {
         
-        return contributorService.getAllContributor();
+        return contributorDAO.getAllContributor();
     }
     
+    @GetMapping("/{emailId}")
+    @ResponseBody
+    public ResponseEntity<Contributor> getStudentProfile(@PathVariable String emailId) {
+        Contributor conOptional = contributorDAO.findByEmailId(emailId);
+        if (conOptional != null) {
+            return ResponseEntity.ok(conOptional);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
     
     @GetMapping("/home.htm")
     public String homePage(HttpSession session, Model model) {
@@ -54,20 +71,21 @@ public class ContributorController {
         return "home";
     }
     
-    @PutMapping("/update/{contributorId}")
-    public ResponseEntity<String> updateContributor(@PathVariable long contributorId, @RequestBody Contributor updatedContributor) {
+    @PutMapping("/update/{emailId}")
+    public ResponseEntity<String> updateContributor(@PathVariable String emailId, @RequestBody Contributor updatedContributor) {
         // Find the contributor by ID
-        Optional<Contributor> contributorOptional = contributorService.findById(contributorId);
-        if (contributorOptional.isPresent()) {
-            Contributor existingContributor = contributorOptional.get();
+       Contributor contributor = contributorDAO.findByEmailId(emailId);
+        if (contributor != null) {
+            Contributor existingContributor = contributor;
             
             // Update the fields
             existingContributor.setFirstName(updatedContributor.getFirstName());
             existingContributor.setLastName(updatedContributor.getLastName());
-            
+            existingContributor.setExpertise(updatedContributor.getExpertise());
+            existingContributor.setExperienceYears(updatedContributor.getExperienceYears());
 
             // Update the contributor in the database
-            contributorService.updateContributor(existingContributor);
+            contributorDAO.updateContributor(existingContributor);
             return ResponseEntity.ok("Contributor updated successfully.");
         } else {
             return ResponseEntity.status(404).body("Contributor not found.");
@@ -83,4 +101,7 @@ public class ContributorController {
         }
         return "redirect:/login.htm?logout=true";
     }
+    
+    
+    
 }

@@ -15,7 +15,8 @@ import org.hibernate.annotations.Check;
 @Entity
 @Table(name = "Student", uniqueConstraints = @UniqueConstraint(columnNames = { "emailId"}))
 @NamedQueries({
-        @NamedQuery(name = "selectByStudentEmailId", query = "FROM Student WHERE emailId = :emailId")
+        @NamedQuery(name = "selectByStudentEmailId", query = "FROM Student WHERE emailId = :emailId"),
+//        @NamedQuery(name = "selectByStudentEmailId", query = "FROM Student WHERE emailId = :emailId")
 })
 public class Student {
     

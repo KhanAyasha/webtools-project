@@ -121,6 +121,7 @@
         <div class="profile-info">
             <h2>Welcome, ${sessionScope.authenticatedUser.getEmail()}</h2>
             <p>Role: ${sessionScope.authenticatedUser.getRole()}</p>
+            <p>Email: ${sessionScope.authenticatedUser.getEmailId()}</p>
         </div>
         <div class="profile-action">
             <button onclick="location.href='update-profile.htm'">Update Profile</button>
@@ -134,8 +135,8 @@
                 <c:when test="${sessionScope.authenticatedUser.getRole() eq 'contributor'}">
                     <h2>Contributor Information</h2>
                     <form>
-                        <label for="email">Email:</label>
-                        <input type="text" id="email" value="${sessionScope.authenticatedUser.getEmail()}" readonly />
+<!--                        <label for="email">Email:</label>
+                        <input type="text" id="email" value="${sessionScope.authenticatedUser.getEmail()}" readonly />-->
 
                         <label for="firstName">First Name:</label>
                         <input type="text" id="email" value="${sessionScope.authenticatedUser.getEmail()}" readonly />
@@ -143,8 +144,6 @@
                         <label for="lastName">Last Name:</label>
                         <input type="text" id="email" value="${sessionScope.authenticatedUser.getEmail()}" readonly />
 
-                        <label for="role">Role:</label>
-                        <input type="text" id="role" value="${sessionScope.authenticatedUser.getRole()}" readonly />
 
                         <label for="expertise">Expertise:</label>
                         <input type="text" id="expertise" value="${sessionScope.authenticatedUser.expertise}" readonly />
@@ -158,17 +157,12 @@
                 <c:otherwise>
                     <h2>Student Information</h2>
                     <form>
-                        <label for="emailId">Email:</label>
-                        <input type="text" id="email" value="${sessionScope.authenticatedUser.getEmail()}" readonly />
 
                         <label for="firstName">First Name:</label>
                         <input type="text" id="email" value="${sessionScope.authenticatedUser.getEmail()}" readonly />
 
                         <label for="lastName">Last Name:</label>
                         <input type="text" id="email" value="${sessionScope.authenticatedUser.getEmail()}" readonly />
-
-                        <label for="role">Role:</label>
-                        <input type="text" id="role" value="${sessionScope.authenticatedUser.getRole()}" readonly />
 
                         <label for="major">Major:</label>
                         <input type="text" id="major" value="${sessionScope.authenticatedUser.major}" readonly />

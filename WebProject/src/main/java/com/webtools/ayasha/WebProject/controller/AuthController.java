@@ -132,7 +132,7 @@ public class AuthController {
             student.setPassword(passwordEncoder.encode(requestBody.getPassword()));
 //            student.setPassword(requestBody.getPassword());
             student.setMajor(requestBody.getMajor());
-            studentDAO.save(student);
+            studentDAO.saveStudent(student);
 
             // Set session attribute and redirect to student home page
             session.invalidate();
@@ -158,7 +158,7 @@ public class AuthController {
 
             contributor.setExpertise(requestBody.getExpertise());
 //            contributor.setExperienceYears(requestBody.getExperienceYears());
-            contributorDAO.save(contributor);
+            contributorDAO.saveContributor(contributor);
 
             session.invalidate();
             return "redirect:/register-Success.htm";
