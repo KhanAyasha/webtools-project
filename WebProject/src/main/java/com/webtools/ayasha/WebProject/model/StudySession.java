@@ -11,9 +11,12 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 /**
@@ -30,28 +33,28 @@ public class StudySession {
     @Column(name="id")
     private int studySessionID;
     
-    @OneToOne(optional=false, cascade = CascadeType.ALL)
-    @JoinColumn(name="courseId", referencedColumnName = "courseId")
+    @ManyToOne
+    @JoinColumn(name="courseId", referencedColumnName = "courseId",nullable = false)
     private Courses course;
     
-    @OneToOne(optional=false, cascade = CascadeType.ALL)
-    @JoinColumn(name="contributorID", referencedColumnName = "contributorID")
+    @ManyToOne
+    @JoinColumn(name="contributorID", referencedColumnName = "contributorID",nullable = false)
     private Contributor contributor;
     
     @Column(name="time")
-    private String time;
+    private LocalTime time;
     
     @Column(name="date")
     private LocalDate date;
     
-    @OneToOne(optional=false, cascade = CascadeType.ALL)
-    @JoinColumn(name="studentID", referencedColumnName = "studentID")
+    @ManyToOne
+    @JoinColumn(name="studentID", referencedColumnName = "studentID", nullable = false)
     private Student student;
 
     public StudySession() {
     }
 
-    public StudySession(Courses course, Contributor contributor, String time, LocalDate date, Student student) {
+    public StudySession(Courses course, Contributor contributor, LocalTime timee, LocalDate date, Student student) {
         this.course = course;
         this.contributor = contributor;
         this.time = time;
@@ -83,11 +86,11 @@ public class StudySession {
         this.contributor = contributor;
     }
 
-    public String getTime() {
+    public LocalTime getTime() {
         return time;
     }
 
-    public void setTime(String time) {
+    public void setTime(LocalTime time) {
         this.time = time;
     }
 

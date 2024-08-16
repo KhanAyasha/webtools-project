@@ -33,7 +33,7 @@ public class StudentDAO extends BaseDAO{
 //        beginTransaction();
         Query query = getSession().createQuery("FROM Student", Student.class);
         List<Student> studentList = query.getResultList();
-        closeSession();
+//        closeSession();
         return studentList;
     }
     
@@ -64,7 +64,7 @@ public class StudentDAO extends BaseDAO{
             }
             throw e;
         } finally {
-            closeSession();
+//            closeSession();
         }
     }
 
@@ -73,15 +73,16 @@ public class StudentDAO extends BaseDAO{
         beginTransaction();
         getSession().update(student);
         commitTransaction();
-        closeSession();
+//        closeSession();
     }
 
     public void deleteStudent(Student student) {
         beginTransaction();
         getSession().delete(student);
         commitTransaction();
-        closeSession();
+//        closeSession();
     }
+
     
     
 }

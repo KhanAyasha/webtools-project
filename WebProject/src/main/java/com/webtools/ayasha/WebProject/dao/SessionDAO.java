@@ -26,8 +26,9 @@ public class SessionDAO extends BaseDAO{
         try {
             Query<StudySession> query = session.createQuery("from StudySession", StudySession.class);
             return query.getResultList();
-        } finally {
-            closeSession();
+        } 
+        finally {
+//            closeSession();
         }
     }
 
@@ -42,9 +43,10 @@ public class SessionDAO extends BaseDAO{
         } catch (Exception e) {
             rollbackTransaction();
             throw e;
-        } finally {
-            closeSession();
-        }
+        } 
+//        finally {
+//            closeSession();
+//        }
     }
 
     // Update an existing session
@@ -68,9 +70,10 @@ public class SessionDAO extends BaseDAO{
         } catch (Exception e) {
             rollbackTransaction();
             throw e;
-        } finally {
-            closeSession();
-        }
+        } 
+//        finally {
+//            closeSession();
+//        }
     }
 
     // Delete a session
@@ -86,9 +89,10 @@ public class SessionDAO extends BaseDAO{
         } catch (Exception e) {
             rollbackTransaction();
             throw e;
-        } finally {
-            closeSession();
-        }
+        } 
+//        finally {
+//            closeSession();
+//        }
     }
 
     // Get sessions by courseId
@@ -99,8 +103,9 @@ public class SessionDAO extends BaseDAO{
                 "from StudySession where course.courseId = :courseId", StudySession.class);
             query.setParameter("courseId", courseId);
             return query.getResultList();
-        } finally {
-            closeSession();
+        } 
+        finally {
+//            closeSession();
         }
     }
 
@@ -112,22 +117,44 @@ public class SessionDAO extends BaseDAO{
                 "from StudySession where contributor.contributorID = :contributorId", StudySession.class);
             query.setParameter("contributorId", contributorId);
             return query.getResultList();
-        } finally {
-            closeSession();
+        } 
+        finally {
+//            closeSession();
         }
     }
 
     // Get sessions by studentId
-    public List<StudySession> getSessionsByStudentId(int studentId) {
+    public List<StudySession> getSessionsByStudentId(long studentId) {
         Session session = getSession();
         try {
             Query<StudySession> query = session.createQuery(
-                "from StudySession where student.studentID = :studentId", StudySession.class);
+                "from StudySession where student.studentId = :studentId", StudySession.class);
             query.setParameter("studentId", studentId);
             return query.getResultList();
         } finally {
-            closeSession();
+//            closeSession();
         }
     }
+    
+    public void saveStudySession(StudySession session) {
+        try {
+            getSession();
+            beginTransaction();
+            getSession().save(session);
+            commitTransaction();
+            System.out.println("Session saved successfully");
+        } catch (Exception e) {
+            System.err.println("Error saving session: " + e.getMessage());
+            e.printStackTrace();
+            if (getSession().getTransaction() != null) {
+                getSession().getTransaction().rollback();
+            }
+            throw e;
+        } 
+        finally {
+//            closeSession(); // Ensure the session is closed in the finally block
+        }
+    }
+
     
 }

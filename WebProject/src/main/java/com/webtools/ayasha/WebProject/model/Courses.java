@@ -10,9 +10,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.util.List;
@@ -40,6 +43,10 @@ public class Courses {
 	@Column(name = "description")
 	private String description;
         
+        @ManyToOne
+        @JoinColumn(name="contributorID", referencedColumnName = "contributorID", nullable = false)
+        private Contributor contributor;
+        
 //        // One-to-Many relationship with Course
 //        @OneToMany(mappedBy = "courses", cascade = CascadeType.ALL)
 //        private List<Contributor> contributors;
@@ -49,13 +56,15 @@ public class Courses {
 		
 	}
 	
-	public Courses(int courseId, String courseName, String description) {
+	public Courses(int courseId, String courseName, String description, Contributor contributor) {
 		super();
 		this.courseId = courseId;
 		this.courseName = courseName;
 		this.description = description;
+                this.contributor = contributor;
 	}
 
+        
         public int getCourseId() {
             return courseId;
         }
@@ -72,7 +81,13 @@ public class Courses {
             this.courseName = courseName;
         }
 
-	
+        public Contributor getContributor() {
+            return contributor;
+        }
+
+        public void setContributor(Contributor contributor) {
+            this.contributor = contributor;
+        }
 
 	public String getDescription() {
 		return description;
@@ -82,14 +97,6 @@ public class Courses {
 		this.description = description;
 	}
         
-//        public List<Contributor> getCourseContributors() {
-//            return contributors;
-//        }
-//
-//        public void setCourseContributors(List<Contributor> contributors) {
-//            this.contributors = contributors;
-//        }
-//        
 
 	
 }

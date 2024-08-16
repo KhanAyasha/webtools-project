@@ -26,7 +26,7 @@ public class CourseDAO extends BaseDAO{
         try {
             return session.get(Courses.class, courseId);
         } finally {
-            closeSession();
+//            closeSession();
         }
     }
     
@@ -35,8 +35,9 @@ public class CourseDAO extends BaseDAO{
         try {
             Query<Courses> query = session.createQuery("FROM Courses", Courses.class);
             return query.list();
-        } finally {
-            closeSession();
+        } 
+        finally {
+//            closeSession();
         }
     }
 
@@ -46,8 +47,9 @@ public class CourseDAO extends BaseDAO{
             Query<Courses> query = session.createQuery("FROM Courses WHERE courseName = :courseName", Courses.class);
             query.setParameter("courseName", courseName);
             return query.uniqueResult();
-        } finally {
-            closeSession();
+        } 
+        finally {
+//            closeSession();
         }
     }
     
@@ -59,9 +61,10 @@ public class CourseDAO extends BaseDAO{
         } catch (Exception e) {
             rollbackTransaction();
             throw e;
-        } finally {
-            closeSession();
-        }
+        } 
+//        finally {
+//            closeSession();
+//        }
     }
 
     public void updateCourse(Courses course) {
@@ -76,9 +79,10 @@ public class CourseDAO extends BaseDAO{
                 transaction.rollback();
             }
             throw e;
-        } finally {
-            closeSession();
-        }
+        } 
+//        finally {
+//            closeSession();
+//        }
     }
     
     public void deleteCourse(int courseId) {
@@ -96,9 +100,10 @@ public class CourseDAO extends BaseDAO{
                 transaction.rollback();
             }
             throw e;
-        } finally {
-            closeSession();
-        }
+        } 
+//        finally {
+//            closeSession();
+//        }
     }
     
     

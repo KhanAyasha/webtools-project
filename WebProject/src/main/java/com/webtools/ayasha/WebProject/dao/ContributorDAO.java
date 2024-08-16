@@ -28,7 +28,7 @@ public class ContributorDAO extends BaseDAO{
 //        beginTransaction();
         Query query = getSession().createQuery("FROM Contributor", Contributor.class);
         List<Contributor> contributorList = query.getResultList();
-        closeSession();
+//        closeSession();
         return contributorList;
     }
     
@@ -57,9 +57,10 @@ public class ContributorDAO extends BaseDAO{
                 getSession().getTransaction().rollback();
             }
             throw e;
-        } finally {
-            closeSession();
-        }
+        } 
+//        finally {
+//            closeSession();
+//        }
     }
 
 
@@ -67,14 +68,14 @@ public class ContributorDAO extends BaseDAO{
         beginTransaction();
         getSession().update(contributor);
         commitTransaction();
-        closeSession();
+//        closeSession();
     }
 
     public void deleteContributor(Contributor contributor) {
         beginTransaction();
         getSession().delete(contributor);
         commitTransaction();
-        closeSession();
+//        closeSession();
     }
 
     

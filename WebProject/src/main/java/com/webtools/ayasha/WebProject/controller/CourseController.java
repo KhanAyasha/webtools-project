@@ -57,12 +57,12 @@ public class CourseController {
         }
     }
 
-    // API to get all courses
-    @GetMapping("/all")
-    public ResponseEntity<List<Courses>> getAllCourses() {
-        List<Courses> courses = courseService.getAllCourses();
-        return ResponseEntity.ok(courses);
-    }
+//    // API to get all courses
+//    @GetMapping("/all")
+//    public ResponseEntity<List<Courses>> getAllCourses() {
+//        List<Courses> courses = courseService.getAllCourses();
+//        return ResponseEntity.ok(courses);
+//    }
     
     // API to add a new course
     @PostMapping("/add")

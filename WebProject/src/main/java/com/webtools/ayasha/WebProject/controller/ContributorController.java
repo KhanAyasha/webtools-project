@@ -8,6 +8,8 @@ import com.webtools.ayasha.WebProject.dao.ContributorDAO;
 import com.webtools.ayasha.WebProject.dao.CourseDAO;
 import com.webtools.ayasha.WebProject.dao.SessionDAO;
 import com.webtools.ayasha.WebProject.model.Contributor;
+import com.webtools.ayasha.WebProject.model.Courses;
+import com.webtools.ayasha.WebProject.model.StudySession;
 import com.webtools.ayasha.WebProject.service.ContributorService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,8 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -102,6 +106,32 @@ public class ContributorController {
         return "redirect:/login.htm?logout=true";
     }
     
+    
+    @GetMapping("/view-sessions.htm")
+    public ResponseEntity<StudySession> viewScheduledSessions(@PathVariable String emailId){
+        return null;
+    }
+    
+    @DeleteMapping("/cancel-session.htm")
+    public ResponseEntity<String> cancelSession(@PathVariable int sessionId){
+        return null;
+    }
+    
+    @GetMapping("/my-courses.htm")
+    public ResponseEntity<Courses> getMyCourses(){
+        return null;
+    }
+    
+    @DeleteMapping("/delete-course.htm")
+    public ResponseEntity<String> deleteCourse(@PathVariable int courseId){
+        return null;
+    }
+    
+    
+    @PostMapping("/addCourse.htm")
+    public ResponseEntity<String> addCourse(@PathVariable Courses course){
+        return null;
+    }
     
     
 }
