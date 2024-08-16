@@ -72,9 +72,20 @@ public class ContributorController {
     public String homePage(HttpSession session, Model model) {
         System.out.println("hit home contributor");
         String role = (String) session.getAttribute("role");
+        String emailId = (String) session.getAttribute("emailId");
+        
+        if ("contributor".equalsIgnoreCase(role)) {
+            Contributor contributor = contributorDAO.findByEmailId(emailId); // Fetch contributor details
+            if (contributor != null) {
+                model.addAttribute("authenticatedUser", contributor);
+            }
+        }
+
         model.addAttribute("role", role);
         return "home";
     }
+    
+    
     
     @PutMapping("/update/{emailId}")
     public ResponseEntity<String> updateContributor(@PathVariable String emailId, @RequestBody Contributor updatedContributor) {

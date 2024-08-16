@@ -64,10 +64,20 @@ public class StudentController {
         return studentDAO.getAllStudents();
     }
     
+
     @GetMapping("/home.htm")
     public String homePage(HttpSession session, Model model) {
         System.out.println("hit home student");
         String role = (String) session.getAttribute("role");
+        String emailId = (String) session.getAttribute("emailId");
+
+        if ("student".equalsIgnoreCase(role)) {
+            Student student = studentDAO.findByEmailId(emailId); // Fetch student details
+            if (student != null) {
+                model.addAttribute("authenticatedUser", student);
+            }
+        } 
+
         model.addAttribute("role", role);
         return "home";
     }
