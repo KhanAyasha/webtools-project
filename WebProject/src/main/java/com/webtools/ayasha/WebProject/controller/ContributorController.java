@@ -82,6 +82,7 @@ public class ContributorController {
         }
 
         model.addAttribute("role", role);
+        System.out.println("authenticated contributor");
         return "home";
     }
     

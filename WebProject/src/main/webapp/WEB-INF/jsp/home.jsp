@@ -3,6 +3,11 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,7 +20,6 @@
             padding: 0;
             font-family: Arial, sans-serif;
             background-color: #4e5e6d;
-            /*background-image: url('images/background.jpg');*/
             background-repeat: no-repeat;
             background-attachment: fixed;
             background-size: cover;
@@ -50,7 +54,8 @@
         .profile-info h2 {
             margin: 0;
             font-size: 24px;
-            color: whitesmoke;
+            color: black;
+            text-align: center;
         }
         .profile-info p {
             margin: 5px 0;
@@ -77,7 +82,6 @@
         .form-container {
             margin-top: 30px;
             padding: 20px;
-            /*margin-right: 30px;*/
             padding-right: 40px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -90,7 +94,6 @@
             display: block;
             margin: 10px 0 5px;
             font-weight: bold;
-            /*color: whitesmoke;*/
         }
         .form-container input {
             width: 100%;
@@ -113,18 +116,77 @@
             background-color: #0056b3;
         }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function enableEdit() {
+                const role = '${role}';
+                const elements = ["firstName", "lastName"];
+                if (role === 'student') {
+                    elements.push("major");
+                } else if (role === 'contributor') {
+                    elements.push("expertise", "experienceYears");
+                }
+                elements.forEach(id => {
+                    document.getElementById(id).removeAttribute("readonly");
+                });
+                document.getElementById("updateButton").style.display = 'inline';
+                document.getElementById("editButton").style.display = 'none';
+            }
+
+            function updateProfile() {
+                const emailId = '${emailId}';
+                const role = '${role}';
+                const firstName = document.getElementById("firstName").value;
+                const lastName = document.getElementById("lastName").value;
+                let requestBody = {
+                    firstName: firstName,
+                    lastName: lastName
+                };
+                
+                if (role === 'student') {
+                    requestBody.major = document.getElementById('major').value;
+                } else if (role === 'contributor') {
+                    requestBody.expertise = document.getElementById('expertise').value;
+                    requestBody.experienceYears = document.getElementById('experienceYears').value;
+                }
+                
+                const url = `/WebProject/${role}/update/${emailId}`;
+                console.log(`Sending request to: ${url}`);
+                
+                fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                })
+                .then(response => response.text()) // Use .text() instead of .json()
+                .then(data => {
+                    alert('Update successful:', data);
+                    // Optionally, handle UI updates or show success messages
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('You have some error!');
+                });
+            }
+
+            document.getElementById("editButton").addEventListener("click", enableEdit);
+            document.getElementById("updateButton").addEventListener("click", updateProfile);
+        });
+    </script>
 </head>
 <body>
 <t:header />
 <div class="container">
     <div class="profile">
         <div class="profile-info">
-            <h2>Welcome, ${sessionScope.authenticatedUser.getEmail()}</h2>
-            <p>Role: ${sessionScope.authenticatedUser.getRole()}</p>
-            <p>Email: ${sessionScope.authenticatedUser.getEmailId()}</p>
+            <h2>Welcome! ${authenticatedUser.lastName}, ${authenticatedUser.firstName} ;)</h2>
+            <p>Role: ${role}</p>
+            <p>Email: ${authenticatedUser.emailId}</p>
         </div>
         <div class="profile-action">
-            <button onclick="location.href='update-profile.htm'">Update Profile</button>
+            <button type="button" id="updateButton" style="display:none;">Update Profile</button>
         </div>
     </div>
 
@@ -132,48 +194,42 @@
         <h1>Your Dashboard</h1>
         <div class="form-container">
             <c:choose>
-                <c:when test="${sessionScope.authenticatedUser.getRole() eq 'contributor'}">
+                <c:when test="${role eq 'contributor'}">
                     <h2>Contributor Information</h2>
                     <form>
-<!--                        <label for="email">Email:</label>
-                        <input type="text" id="email" value="${sessionScope.authenticatedUser.getEmail()}" readonly />-->
-
                         <label for="firstName">First Name:</label>
-                        <input type="text" id="email" value="${sessionScope.authenticatedUser.getEmail()}" readonly />
+                        <input type="text" id="firstName" value="${authenticatedUser.firstName}" readonly />
 
                         <label for="lastName">Last Name:</label>
-                        <input type="text" id="email" value="${sessionScope.authenticatedUser.getEmail()}" readonly />
-
+                        <input type="text" id="lastName" value="${authenticatedUser.lastName}" readonly />
 
                         <label for="expertise">Expertise:</label>
-                        <input type="text" id="expertise" value="${sessionScope.authenticatedUser.expertise}" readonly />
+                        <input type="text" id="expertise" value="${authenticatedUser.expertise}" readonly />
 
-                        <label for="experience">Years of Experience:</label>
-                        <input type="text" id="experience" value="${sessionScope.authenticatedUser.experience}" readonly />
+                        <label for="experienceYears">Years of Experience:</label>
+                        <input type="text" id="experienceYears" value="${authenticatedUser.experienceYears}" readonly />
 
-                        <button type="button">Edit Information</button>
+                        <button type="button" id="editButton">Edit Information</button>
                     </form>
                 </c:when>
                 <c:otherwise>
                     <h2>Student Information</h2>
                     <form>
-
                         <label for="firstName">First Name:</label>
-                        <input type="text" id="email" value="${sessionScope.authenticatedUser.getEmail()}" readonly />
+                        <input type="text" id="firstName" value="${authenticatedUser.firstName}" readonly />
 
                         <label for="lastName">Last Name:</label>
-                        <input type="text" id="email" value="${sessionScope.authenticatedUser.getEmail()}" readonly />
+                        <input type="text" id="lastName" value="${authenticatedUser.lastName}" readonly />
 
                         <label for="major">Major:</label>
-                        <input type="text" id="major" value="${sessionScope.authenticatedUser.major}" readonly />
+                        <input type="text" id="major" value="${authenticatedUser.major}" readonly />
 
-                        <button type="button">Edit Information</button>
+                        <button type="button" id="editButton">Edit Information</button>
                     </form>
                 </c:otherwise>
             </c:choose>
         </div>
     </div>
 </div>
-
 </body>
 </html>

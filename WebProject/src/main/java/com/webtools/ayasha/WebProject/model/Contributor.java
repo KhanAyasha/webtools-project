@@ -49,19 +49,23 @@ public class Contributor {
     @Column
     private int experienceYears;
     
+    @Column
+    private String major;
+    
 //    // One-to-Many relationship with CourseContributor
 //    @OneToMany(mappedBy = "contributor", cascade = CascadeType.ALL)
 //    private List<Courses> courses;
 
     public Contributor() {}
 
-    public Contributor(String firstName, String lastName, String password, String emailId, String expertise, int experienceYears) {
+    public Contributor(String firstName, String lastName, String password, String emailId, String expertise, int experienceYears, String major) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.password = password;
         this.emailId = emailId;
         this.expertise = expertise;
         this.experienceYears = experienceYears;
+        this.major = major;
     }
 
     public long getContributorId() {
