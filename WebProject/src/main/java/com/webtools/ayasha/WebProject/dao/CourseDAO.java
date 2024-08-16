@@ -21,7 +21,7 @@ import org.springframework.stereotype.Repository;
 @Qualifier("courseDAO")
 public class CourseDAO extends BaseDAO{
     
-    public Courses getCourseById(int courseId) {
+    public Courses getCourseById(long courseId) {
         Session session = getSession();
         try {
             return session.get(Courses.class, courseId);
@@ -29,6 +29,20 @@ public class CourseDAO extends BaseDAO{
 //            closeSession();
         }
     }
+    
+    public List<Courses> getCourseByContributorId(long contributorId) {
+        Session session = getSession();
+        try {
+            // Adjust the query to match your entity structure
+            Query<Courses> query = session.createQuery("FROM Courses WHERE contributor.contributorId = :contributorId", Courses.class);
+            query.setParameter("contributorId", contributorId);
+            return query.list();
+        } finally {
+            // Close the session if you're managing it manually
+            // closeSession();
+        }
+    }
+
     
     public List<Courses> getAllCourses() {
         Session session = getSession();
@@ -85,7 +99,7 @@ public class CourseDAO extends BaseDAO{
 //        }
     }
     
-    public void deleteCourse(int courseId) {
+    public void deleteCourse(long courseId) {
         Session session = getSession();
         Transaction transaction = null;
         try {

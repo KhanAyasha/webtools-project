@@ -4,6 +4,7 @@
  */
 package com.webtools.ayasha.WebProject.dao;
 
+import com.webtools.ayasha.WebProject.model.Contributor;
 import com.webtools.ayasha.WebProject.model.StudySession;
 import java.util.List;
 import org.hibernate.Session;
@@ -77,11 +78,11 @@ public class SessionDAO extends BaseDAO{
     }
 
     // Delete a session
-    public void deleteSession(int id) {
+    public void deleteSession(long sessionId) {
         Session session = getSession();
         try {
             beginTransaction();
-            StudySession sessionToDelete = session.get(StudySession.class, id);
+            StudySession sessionToDelete = session.get(StudySession.class, sessionId);
             if (sessionToDelete != null) {
                 session.delete(sessionToDelete);
                 commitTransaction();
@@ -110,11 +111,11 @@ public class SessionDAO extends BaseDAO{
     }
 
     // Get sessions by contributorId
-    public List<StudySession> getSessionsByContributorId(int contributorId) {
+    public List<StudySession> getSessionsByContributorId(long contributorId) {
         Session session = getSession();
         try {
             Query<StudySession> query = session.createQuery(
-                "from StudySession where contributor.contributorID = :contributorId", StudySession.class);
+                "from StudySession where contributor.contributorId = :contributorId", StudySession.class);
             query.setParameter("contributorId", contributorId);
             return query.getResultList();
         } 

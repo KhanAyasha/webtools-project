@@ -44,7 +44,7 @@ public class Courses {
 	private String description;
         
         @ManyToOne
-        @JoinColumn(name="contributorID", referencedColumnName = "contributorID", nullable = false)
+        @JoinColumn(name="contributorId", referencedColumnName = "contributorId", nullable = false)
         private Contributor contributor;
         
 //        // One-to-Many relationship with Course

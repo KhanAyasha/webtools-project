@@ -38,7 +38,7 @@ public class StudySession {
     private Courses course;
     
     @ManyToOne
-    @JoinColumn(name="contributorID", referencedColumnName = "contributorID",nullable = false)
+    @JoinColumn(name="contributorId", referencedColumnName = "contributorId",nullable = false)
     private Contributor contributor;
     
     @Column(name="time")
@@ -48,7 +48,7 @@ public class StudySession {
     private LocalDate date;
     
     @ManyToOne
-    @JoinColumn(name="studentID", referencedColumnName = "studentID", nullable = false)
+    @JoinColumn(name="studentId", referencedColumnName = "studentId", nullable = false)
     private Student student;
 
     public StudySession() {

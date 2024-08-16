@@ -4,6 +4,7 @@
  */
 package com.webtools.ayasha.WebProject.controller;
 
+import com.webtools.ayasha.WebProject.dao.CourseDAO;
 import com.webtools.ayasha.WebProject.model.Courses;
 import com.webtools.ayasha.WebProject.service.CourseService;
 import java.util.List;
@@ -27,18 +28,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/courses")
 public class CourseController {
     
-    private final CourseService courseService;
+    private final CourseDAO courseDAO;
 
     @Autowired
-    public CourseController(CourseService courseService) {
-        this.courseService = courseService;
+    public CourseController(CourseDAO courseDAO) {
+        this.courseDAO = courseDAO;
     }
     
     
     // API to get course by ID
     @GetMapping("/{id}")
     public ResponseEntity<Courses> getCourseById(@PathVariable("id") int courseId) {
-        Courses course = courseService.getCourseById(courseId);
+        Courses course = courseDAO.getCourseById(courseId);
         if (course != null) {
             return ResponseEntity.ok(course);
         } else {
@@ -49,7 +50,7 @@ public class CourseController {
     // API to get course by name
     @GetMapping("/name/{courseName}")
     public ResponseEntity<Courses> getCourseByName(@PathVariable("courseName") String courseName) {
-        Courses course = courseService.getCourseByName(courseName);
+        Courses course = courseDAO.getCourseByName(courseName);
         if (course != null) {
             return ResponseEntity.ok(course);
         } else {
@@ -64,34 +65,18 @@ public class CourseController {
 //        return ResponseEntity.ok(courses);
 //    }
     
-    // API to add a new course
-    @PostMapping("/add")
-    public ResponseEntity<String> addCourse(@RequestBody Courses course) {
-        courseService.addCourse(course);
-        return ResponseEntity.ok("Course added successfully");
-    }
-    
     // API to update course details
     @PutMapping("/{courseId}")
     public ResponseEntity<Courses> updateCourse(@PathVariable int courseId, @RequestBody Courses course) {
         course.setCourseId(courseId);
         try {
-            courseService.updateCourse(course);
+            courseDAO.updateCourse(course);
             return ResponseEntity.ok(course);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
     }
     
-    // API to delete a course
-    @DeleteMapping("/{courseId}")
-    public ResponseEntity<String> deleteCourse(@PathVariable int courseId) {
-        try {
-            courseService.deleteCourse(courseId);
-            return ResponseEntity.ok("Course Deleted Successfully!");
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
+    
 }
 
