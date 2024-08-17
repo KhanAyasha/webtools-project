@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
-
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 
 <!DOCTYPE html>
@@ -78,15 +78,25 @@
     <t:header />
     <div class="container">
         <h1>Add Course</h1>
-        <form:form method="post" action="${pageContext.request.contextPath}/contributor/add-course.htm" modelAttribute="course">
-            <label for="courseName">Course Name</label>
-            <input type="text" name="courseName" id="courseName" required>
+        <form:form method="post" action="${pageContext.request.contextPath}/path-to-your-endpoint" modelAttribute="yourModelAttribute">
+            <label for="date">Date</label>
+            <input type="date" name="date" id="date" required>
 
-            <label for="description">Course Description</label>
-            <input type="text" name="description" id="description" required>
+            <label for="time">Time</label>
+            <input type="time" name="time" id="time" required>
 
-            <input type="submit" value="Create Course">
+            <label for="contributorId">Contributor ID</label>
+            <input type="number" name="contributorId" id="contributorId" required>
+
+            <label for="courseId">Course ID</label>
+            <input type="number" name="courseId" id="courseId" required>
+
+            <label for="sessionId">Session ID</label>
+            <input type="number" name="sessionId" id="sessionId" required>
+
+            <input type="submit" value="Submit">
         </form:form>
+
     </div>
 </body>
 </html>

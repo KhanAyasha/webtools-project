@@ -33,7 +33,7 @@ public class ContributorService {
         return contributorDAO.getAllContributor();
     }
     
-    public Optional<Contributor> findById(long contributorId) {
+    public Contributor findById(long contributorId) {
         return contributorDAO.findById(contributorId);
     }
 

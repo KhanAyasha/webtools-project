@@ -39,9 +39,9 @@ public class ContributorDAO extends BaseDAO{
                     .uniqueResult();
         }
 
-    public Optional<Contributor> findById(long contributorId) {
+    public Contributor findById(long contributorId) {
         Contributor contributor = getSession().get(Contributor.class, contributorId);
-        return Optional.ofNullable(contributor);
+        return contributor;
     }
 
     public void saveContributor(Contributor contributor) {
@@ -68,7 +68,7 @@ public class ContributorDAO extends BaseDAO{
         beginTransaction();
         getSession().update(contributor);
         commitTransaction();
-//        closeSession();
+        closeSession();
     }
 
     public void deleteContributor(Contributor contributor) {

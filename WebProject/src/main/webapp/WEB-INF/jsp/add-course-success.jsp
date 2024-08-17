@@ -58,7 +58,7 @@
         <p>Your course has been added to the database.</p>
         <a href="add-course.htm">Add Another Course</a>
         <br><br>
-        <a href="home.jsp">Go to Dashboard</a>
+        <!--<a href="home.jsp">Go to Dashboard</a>-->
     </div>
 </body>
 </html>

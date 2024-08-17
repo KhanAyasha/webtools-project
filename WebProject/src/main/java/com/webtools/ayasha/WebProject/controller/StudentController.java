@@ -84,34 +84,44 @@ public class StudentController {
 
     
     @PutMapping("/update/{emailId}")
-    public ResponseEntity<String> updateStudent(@PathVariable String emailId, @RequestBody Student updatedStudent) {
+    public String updateStudent(HttpServletRequest request,@PathVariable String emailId, @RequestBody Student updatedStudent) {
         // Find the student by ID
-        Student student = studentDAO.findByEmailId(emailId);
-        if (student != null) {
-            Student existingStudent = student;
-            
-            // Update the fields
-            existingStudent.setFirstName(updatedStudent.getFirstName());
-            existingStudent.setLastName(updatedStudent.getLastName());
-            existingStudent.setMajor(updatedStudent.getMajor());
-            
+        HttpSession httpSession = request.getSession(false);
+        if(httpSession != null) {
+            Student student = studentDAO.findByEmailId(emailId);
+            if (student != null) {
+                Student existingStudent = student;
 
-            // Update the student in the database
-            studentDAO.updateStudent(existingStudent);
-            return ResponseEntity.ok("Student updated successfully.");
-        } else {
-            return ResponseEntity.status(404).body("Student not found.");
+                // Update the fields
+                existingStudent.setFirstName(updatedStudent.getFirstName());
+                existingStudent.setLastName(updatedStudent.getLastName());
+                existingStudent.setMajor(updatedStudent.getMajor());
+
+
+                // Update the student in the database
+                studentDAO.updateStudent(existingStudent);
+                return "Student updated successfully.";
+            } else {
+                return "Student not found.";
+            }
         }
-    }
+        return "redirect:/login.htm?logout=true";
+}   
+    
     
     
     @GetMapping("/{emailId}")
     @ResponseBody
-    public ResponseEntity<Student> getStudentProfile(@PathVariable String emailId) {
-        Student studentOptional = studentDAO.findByEmailId(emailId);
-        if (studentOptional != null) {
-            return ResponseEntity.ok(studentOptional);
-        } else {
+    public ResponseEntity<Student> getStudentProfile(HttpServletRequest request,@PathVariable String emailId) {
+        HttpSession httpSession = request.getSession(false);
+        if(httpSession != null) {
+            Student studentOptional = studentDAO.findByEmailId(emailId);
+            if (studentOptional != null) {
+                return ResponseEntity.ok(studentOptional);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        }else{
             return ResponseEntity.notFound().build();
         }
     }
@@ -125,33 +135,40 @@ public class StudentController {
         return "redirect:/login.htm?logout=true";
     }
     
-    
+
+
     @GetMapping("/my-sessions.htm/{emailId}")
-    public ResponseEntity<List<StudySession>> getSessionbyStudentEmail(@PathVariable String emailId){
-        System.out.println("inside my session");
-        // Step 1: Fetch the student by email
-        Student student = studentDAO.findByEmailId(emailId);
+    public String getSessionbyStudentEmail(HttpServletRequest request, @PathVariable String emailId, Model model) {
+        HttpSession httpSession = request.getSession(false);
+        if (httpSession != null) {
+            Student student = studentDAO.findByEmailId(emailId);
 
-        if (student == null) {
-            System.out.println("student is null");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Return 404 if the student is not found
-        }
+            if (student == null) {
+                model.addAttribute("message", "Student not found.");
+                return "my-sessions"; // Return the same JSP page with the message
+            }
 
-        // Step 2: Fetch the sessions for the student
-        List<StudySession> studySessions = sessionDAO.getSessionsByStudentId(student.getStudentId());
-        System.out.println("found study session "+studySessions.toString());
-        // Step 3: Return the sessions
-        if(studySessions == null || studySessions.size() == 0 ){
-            System.out.println("No study sessions found");
-            return ResponseEntity.ok(null);
+            List<StudySession> studySessions = sessionDAO.getSessionsByStudentId(student.getStudentId());
+
+            if (studySessions == null || studySessions.isEmpty()) {
+                model.addAttribute("message", "No study sessions found.");
+            } else {
+                model.addAttribute("studySessions", studySessions);
+            }
+
+            return "my-sessions"; // Return the JSP page
+        } else {
+            model.addAttribute("message", "Session not found.");
+            return "my-sessions";
         }
-        return ResponseEntity.ok(studySessions);
     }
     
+    
     @GetMapping("/view-courses.htm")
-    public ResponseEntity<List<Courses>> getCoursesForStudent() {
-        List<Courses> courses = courseDAO.getAllCourses(); // Call method directly from CourseService
-        return ResponseEntity.ok(courses);
+    public String getCoursesForStudent(Model model) {
+        List<Courses> courses = courseDAO.getAllCourses(); 
+        model.addAttribute("courses", courses);
+        return "my-courses"; 
     }
     
     @PostMapping("schedule-session.htm/{emailId}/{courseId}")
@@ -195,6 +212,24 @@ public class StudentController {
     }
     
     
+    
+    @GetMapping("/add-session.htm/{emailId}")
+    public String showAddCourseForm(@PathVariable String emailId,
+                                    HttpSession session,
+                                    Model model) {
+
+        // Store the emailId in the session if needed
+        session.setAttribute("emailId", emailId);
+
+        // Fetch the contributor based on the emailId
+        Student student = studentDAO.findByEmailId(emailId);
+
+        // Add the contributor to the model if needed
+        model.addAttribute("student", student);
+
+        // Return the view name for adding a course
+        return "add-session";
+    }
     
     
 }

@@ -8,12 +8,12 @@ package com.webtools.ayasha.WebProject.dao;
 import java.util.logging.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
+//import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 
 public abstract class BaseDAO {
 
-    private static final Logger log = Logger.getAnonymousLogger();
+//    private static final Logger log = Logger.getAnonymousLogger();
     private static final ThreadLocal sessionThread = new ThreadLocal();
     private static final SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
 

@@ -45,15 +45,15 @@
         <li><a href="home.htm">Home</a></li>
         
         <c:if test="${role eq 'student'}">
-            <li><a href="my-sessions.htm">View Sessions</a></li>
+            <li><a href="my-sessions.htm/${sessionScope.emailId}">View Sessions</a></li>
             <li><a href="view-courses.htm">View Courses</a></li>
-            <!--<li><a href="student-resources.htm">View Courses</a></li>-->
+            <li><a href="add-session.htm">Schedule a session</a></li>
         </c:if>
         
         <c:if test="${role eq 'contributor'}">
-            <li><a href="view-session.htm">View Sessions</a></li>
-            <li><a href="add-course.htm">Add Courses</a></li>
-            <li><a href="my-courses.htm">My Courses</a></li>
+            <li><a href="my-sessions.htm/${sessionScope.emailId}">View Sessions</a></li>
+            <li><a href="add-course.htm/${sessionScope.emailId}">Add Courses</a></li>
+            <li><a href="my-courses.htm/${sessionScope.emailId}">My Courses</a></li>
         </c:if>
         
         <li><a href="logout.htm">Logout</a></li>

@@ -23,16 +23,6 @@ public class WebProjectApplication {
         
         
         
-        @GetMapping("/add-course.htm")
-	public String addCoursePage() {
-		return "add-course";
-	}
-        
-        @GetMapping("/add-course-success.htm")
-	public String addCourseSuccessPage() {
-		return "add-course-success";
-	}
-        
         @GetMapping("/my-courses.htm")
 	public String myCoursesPage() {
 		return "my-courses";

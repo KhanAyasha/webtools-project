@@ -14,21 +14,29 @@ import com.webtools.ayasha.WebProject.service.ContributorService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
  *
@@ -109,6 +117,104 @@ public class ContributorController {
         }
     }
     
+    @GetMapping("/add-course.htm/{emailId}")
+    public String showAddCourseForm(@PathVariable String emailId,
+                                    HttpSession session,
+                                    Model model) {
+
+        // Store the emailId in the session if needed
+        session.setAttribute("emailId", emailId);
+
+        // Fetch the contributor based on the emailId
+        Contributor contributor = contributorDAO.findByEmailId(emailId);
+
+        // Add the contributor to the model if needed
+        model.addAttribute("contributor", contributor);
+
+        // Return the view name for adding a course
+        return "add-course";
+    }
+
+    
+//    @PostMapping("/add-course.htm/{emailId}")
+//    public String addCourse(@RequestParam String courseName,
+//                            @RequestParam String description,
+//                            HttpSession session,
+//                            RedirectAttributes redirectAttributes) {
+//
+//        // Retrieve emailId from session
+//        String emailId = (String) session.getAttribute("emailId");
+//        System.out.println("email i . add course post"+ emailId);
+//
+//        // Check if emailId is present in the session
+//        if (emailId == null) {
+//            redirectAttributes.addFlashAttribute("errorMessage", "Session expired or email ID not found.");
+//            return "redirect:/contributor/login.htm";  // Redirect to login or an appropriate page
+//        }
+//
+//        // Find the contributor by emailId
+//        Contributor contributor = contributorDAO.findByEmailId(emailId);
+//
+//        if (contributor == null) {
+//            redirectAttributes.addFlashAttribute("errorMessage", "Contributor not found");
+//            return "redirect:/contributor/home.htm?emailId=" + emailId;
+//        }
+//
+//        // Create and save the course
+//        Courses course = new Courses();
+//        course.setContributor(contributor);
+//        course.setCourseName(courseName);
+//        course.setDescription(description);
+//
+//        courseDAO.addCourse(course);
+//
+//        // Add success message
+////        redirectAttributes.addFlashAttribute("successMessage", "Course added successfully.");
+//
+//        return "redirect:/contributor/add-course-success";
+//    }
+
+    
+    @PostMapping("/add-course.htm")
+    public String addCourse(@RequestParam String courseName,
+                            @RequestParam String description,
+                            @RequestParam(required = false) String emailId,
+                            HttpSession session,
+                            RedirectAttributes redirectAttributes) {
+
+        // If emailId is provided in the request parameter, use it; otherwise, fall back to the session attribute
+        if (emailId == null) {
+            emailId = (String) session.getAttribute("emailId");
+        }
+
+        // Logging to check if emailId is received
+        System.out.println("Email ID in addCourse POST: " + emailId);
+
+        if (emailId == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Session expired or email ID not found.");
+            return "redirect:/contributor/login.htm";
+        }
+
+        // Find the contributor by emailId
+        Contributor contributor = contributorDAO.findByEmailId(emailId);
+
+        if (contributor == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Contributor not found");
+            return "redirect:/contributor/home.htm?emailId=" + emailId;
+        }
+
+        // Create and save the course
+        Courses course = new Courses();
+        course.setContributor(contributor);
+        course.setCourseName(courseName);
+        course.setDescription(description);
+
+        courseDAO.addCourse(course);
+
+        return "redirect:/contributor/add-course-success";
+    }
+
+    
     
     @GetMapping("/logout.htm")
     public String logout(HttpServletRequest request, HttpServletResponse response) {
@@ -119,35 +225,34 @@ public class ContributorController {
         return "redirect:/login.htm?logout=true";
     }
     
+     
     
-    @GetMapping("/view-sessions.htm/{emailId}")
-    public ResponseEntity<List<StudySession>> viewScheduledSessions(@PathVariable String emailId){
-        System.out.println("inside my session");
-        // Step 1: Fetch the student by email
-        Contributor contributor = contributorDAO.findByEmailId(emailId);
+    @GetMapping("/my-sessions.htm/{emailId}")
+    public String getSessionbyContributorEmail(HttpServletRequest request, @PathVariable String emailId, Model model) {
+        HttpSession httpSession = request.getSession(false);
+        if (httpSession != null) {
+            Contributor contributor = contributorDAO.findByEmailId(emailId);
 
-        if (contributor == null) {
-            System.out.println("contributor is null");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Return 404 if the student is not found
-        }
+            if (contributor == null) {
+                model.addAttribute("message", "Contributor not found.");
+                return "my-sessions"; // Return the same JSP page with the message
+            }
 
-        // Step 2: Fetch the sessions for the student
-        List<StudySession> studySessions = sessionDAO.getSessionsByContributorId(contributor.getContributorId());
-        System.out.println("found study session "+studySessions.toString());
-        // Step 3: Return the sessions
-        if(studySessions == null || studySessions.size() == 0 ){
-            System.out.println("No study sessions found");
-            return ResponseEntity.ok(null);
+            List<StudySession> studySessions = sessionDAO.getSessionsByContributorId(contributor.getContributorId());
+
+            if (studySessions == null || studySessions.isEmpty()) {
+                model.addAttribute("message", "No study sessions found.");
+            } else {
+                model.addAttribute("studySessions", studySessions);
+            }
+
+            return "my-sessions"; // Return the JSP page
+        } else {
+            model.addAttribute("message", "Session not found.");
+            return "my-sessions";
         }
-        return ResponseEntity.ok(studySessions);
     }
     
-    
-    
-//    @DeleteMapping("/cancel-session.htm/{sessionId}")
-//    public ResponseEntity<String> cancelSession(@PathVariable int sessionId){
-//        return null;
-//    }
     
      // Delete a session
     @DeleteMapping("/cancel-session.htm/{sessionId}")
@@ -156,33 +261,36 @@ public class ContributorController {
         return ResponseEntity.ok("Session deleted successfully!");
     }
     
+
     @GetMapping("/my-courses.htm/{emailId}")
-    public ResponseEntity<List<Courses>> getMyCourses(@PathVariable String emailId){
-        
-        System.out.println("inside my offered courses ");
-        // Step 1: Fetch the student by email
-        Contributor contributor = contributorDAO.findByEmailId(emailId);
+    public String getMyCourses(HttpServletRequest request, @PathVariable String emailId, Model model) {
+        HttpSession httpSession = request.getSession(false);
+        if (httpSession != null) {
+            Contributor contributor = contributorDAO.findByEmailId(emailId);
 
-        if (contributor == null) {
-            System.out.println("contributor is null");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Return 404 if the student is not found
-        }
+            if (contributor == null) {
+                model.addAttribute("message", "Contributor not found.");
+                return "home"; // Return the same JSP page with the message
+            }
 
-        // Step 2: Fetch the sessions for the student
-        List<Courses> courses = courseDAO.getCourseByContributorId(contributor.getContributorId());
-        System.out.println("found study session "+courses.toString());
-        // Step 3: Return the sessions
-        if(courses == null || courses.size() == 0 ){
-            System.out.println("No study sessions found");
-            return ResponseEntity.ok(null);
+            List<Courses> courses = courseDAO.getCourseByContributorId(contributor.getContributorId());
+
+            if (courses == null || courses.isEmpty()) {
+                model.addAttribute("message", "No study sessions found.");
+            } else {
+                model.addAttribute("courses", courses);
+            }
+
+            return "my-courses"; // Return the JSP page
+        } else {
+            model.addAttribute("message", "courses not found.");
+            return "my-courses";
         }
-        return ResponseEntity.ok(courses);
     }
-    
     
     // API to delete a course
     @DeleteMapping("/delete-course.htm/{courseId}")
-    public ResponseEntity<String> deleteCourse(@PathVariable long courseId) {
+    public ResponseEntity<String> deleteCourse(HttpServletRequest request,@PathVariable long courseId) {
         try {
             courseDAO.deleteCourse(courseId);
             return ResponseEntity.ok("Course Deleted Successfully!");
@@ -192,13 +300,58 @@ public class ContributorController {
     }
     
     
-    
     // API to add a new course
-    @PostMapping("/addCourse.htm")
-    public ResponseEntity<String> addCourse(@RequestBody Courses course) {
-        courseDAO.addCourse(course);
-        return ResponseEntity.ok("Course added successfully");
-    }
+//    @PostMapping("/add-course.htm")
+//    public ResponseEntity<String> addCourse( HttpServletRequest request,@RequestBody Courses course) {
+//        HttpSession session = request.getSession();
+//        if(session != null){
+//            courseDAO.addCourse(course);
+//            return ResponseEntity.ok("Course added successfully");
+//        }else{
+//            return ResponseEntity.ok().body("You are logged out.");
+//        }
+//
+//        
+//    }   
+    
+//    @PostMapping("/add-course.htm")
+//    public ResponseEntity<String> addcousefrombackend(HttpServletRequest request,@PathVariable Courses course) {
+//        try {
+//            
+//            courseDAO.addCourse(course);
+//            return ResponseEntity.ok("Course Deleted Successfully!");
+//        } catch (Exception e) {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
+    
+    
+//    @PostMapping("/add-course.htm/{contributorId}")
+//    public String submitAddCourseForm(
+//            @RequestBody Courses course,
+//            @PathVariable long contributorId,
+//            Model model) {
+//
+//        if (contributorId == 0) {
+//            model.addAttribute("error", "Contributor ID cannot be 0 or empty");
+//            return "errorPage"; // Return to an error page or the same form page with an error message
+//        }
+//
+//        Contributor contributor = contributorDAO.findById(contributorId);
+//        if (contributor == null) {
+//            model.addAttribute("error", "Contributor not found");
+//            return "errorPage"; // Return to an error page or the same form page with an error message
+//        }
+//
+//        // Associate the course with the contributor
+//        course.setContributor(contributor);
+//        courseDAO.addCourse(course);
+//
+//        model.addAttribute("message", "Course added successfully");
+//        return "successPage"; // Return to a success page or the same form page with a success message
+//    }
+    
+    
     
     
 }

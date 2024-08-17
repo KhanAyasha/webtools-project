@@ -30,7 +30,7 @@ public class StudySession {
     
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
-    @Column(name="id")
+    @Column(name="studySessionID")
     private int studySessionID;
     
     @ManyToOne

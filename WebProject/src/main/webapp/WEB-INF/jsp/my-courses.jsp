@@ -1,12 +1,7 @@
-<%-- 
-    Document   : my-courses
-    Created on : Aug 13, 2024, 10:55:42 PM
-    Author     : ayashakhan
---%>
-
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="java.util.List" %>
-<%@ page import="com.webtools.ayasha.WebProject.model.Course" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,102 +11,101 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
-            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
             font-family: Arial, sans-serif;
-            padding-top: 20px;
-            background: url('images/background.jpg') no-repeat center center fixed;
+            background-color: #4e5e6d;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
             background-size: cover;
-            font-family: Arial, sans-serif;
-            color: #fff;
+            background-position: center;
+            color: #333;
         }
         .container {
-            
-            /*padding: 30px;*/
-            border-radius: 10px;
-            /*box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);*/
-            margin: 100px auto;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 40px;
-            /*border-radius: 10px;*/
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #8092a2;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        .container h2 {
+        h1 {
             text-align: center;
-            margin-bottom: 20px;
-            /*color: #333;*/
+            color: whitesmoke;
         }
         .card {
             margin-bottom: 20px;
             color: whitesmoke;
             background-color: black;
-           
-            
         }
         .card-title {
             font-size: 1.25rem;
             font-weight: bold;
-            text-align: center;
-        }
-        .card-text {
-            font-size: 1rem;
         }
         .card-body {
             padding: 15px;
         }
-        .btn-update, .btn-delete {
+        .btn-schedule {
             margin-top: 10px;
-        }
-        .col-12 {
-            text-align: center;
-            margin-top: 10px;
-            font-size: 20px;
-        }
-        .col-12 a {
-            color: #fff;
-        }
-        .col-12 a:hover {
-            color: #3742fa;
         }
     </style>
+    
+    <script>
+    function deleteCourse(courseId) {
+        console.log(courseId);
+        const contextPath = "${pageContext.request.contextPath}";
+        const url = contextPath + "/contributor/delete-course.htm/" + courseId;
+        console.log("URL:", url);
+        fetch(url, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                alert("Course deleted successfully!");
+                // Optionally, refresh the page or redirect to another page
+                window.location.reload();
+            } else {
+                alert("Failed to delete course. Course not found.");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+    }
+</script>
 </head>
 <body>
-    <div class="container">
-        <h2 class="text-center mb-4">Your Courses</h2>
-        <div class="row">
-            <%
-                // Assuming you have a list of Course objects in the session or request attribute named "courses"
-                List<Course> courses = (List<Course>) request.getAttribute("courses");
-                if (courses != null && !courses.isEmpty()) {
-                    for (Course course : courses) {
-            %>
+<t:header />
+<div class="container">
+    <h1 class="text-center">Your Courses</h1>
+    <div class="row">
+        <c:forEach var="course" items="${courses}">
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title"><%= course.getCourseName() %></h5>
+                        <h5 class="card-title">${course.courseName}</h5>
                         <p class="card-text">
-                            <strong>Description:</strong> <%= course.getDescription() %><br>
-                            <strong>Category:</strong> <%= course.getCategory() %><br>
-                            <strong>Duration:</strong> <%= course.getDuration() %> hours<br>
+                            <strong>Description:</strong> ${course.courseId}<br>
+                            <strong>Description:</strong> ${course.description}<br>
+                            <strong>Contributor:</strong> ${course.contributor.contributorId}<br>
+                            <strong>Contributor:</strong> ${course.contributor.firstName}<br>
+                            <strong>Contributor:</strong> ${course.contributor.lastName}<br>
+                            <strong>Contributor:</strong> ${course.contributor.expertise}<br>
+                            <strong>Contributor:</strong> ${course.contributor.experienceYears}<br>
                         </p>
-                        <a href="updateCourse.jsp?courseId=<%= course.getCourseId() %>" class="btn btn-primary btn-update">Update Course</a>
-                        <a href="deleteCourseAction.jsp?courseId=<%= course.getCourseId() %>" class="btn btn-danger btn-delete" onclick="return confirm('Are you sure you want to delete this course?');">Delete Course</a>
+                            <!--<a href="${pageContext.request.contextPath}/delete-course.htm/${course.contributor.contributorId}" class="btn btn-primary btn-schedule">Schedule Appointment</a>-->
+        <a href="#" onclick="deleteCourse(${course.courseId})" class="btn btn-primary btn-schedule">Delete Course</a>
+
                     </div>
                 </div>
             </div>
-            <%
-                    }
-                } else {
-            %>
+        </c:forEach>
+        <c:if test="${empty courses}">
             <div class="col-12">
-                <p class="text-center">No courses found. <a href="add-course.htm">Add a new course</a></p>
+                <p class="text-center text-light">No courses found.</p>
             </div>
-            <%
-                }
-            %>
-        </div>
+        </c:if>
     </div>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</div>
 </body>
 </html>
-
