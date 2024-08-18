@@ -47,7 +47,7 @@
         <c:if test="${role eq 'student'}">
             <li><a href="my-sessions.htm/${sessionScope.emailId}">View Sessions</a></li>
             <li><a href="view-courses.htm">View Courses</a></li>
-            <li><a href="add-session.htm">Schedule a session</a></li>
+            <li><a href="add-session.htm/${sessionScope.emailId}">Schedule a session</a></li>
         </c:if>
         
         <c:if test="${role eq 'contributor'}">

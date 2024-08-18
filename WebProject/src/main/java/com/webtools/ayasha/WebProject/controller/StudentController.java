@@ -22,6 +22,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import org.hibernate.Length;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -35,7 +36,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
  *
@@ -211,7 +214,10 @@ public class StudentController {
         return ResponseEntity.status(HttpStatus.CREATED).body("Session booked successfully");
     }
     
-    
+    @GetMapping("/add-session-success.htm")
+    public String courseAddSuccess(HttpServletRequest request, HttpServletResponse response){
+        return "schedule-session-success";
+    }
     
     @GetMapping("/add-session.htm/{emailId}")
     public String showAddCourseForm(@PathVariable String emailId,
@@ -219,6 +225,7 @@ public class StudentController {
                                     Model model) {
 
         // Store the emailId in the session if needed
+        System.out.println("inside to get session add ");
         session.setAttribute("emailId", emailId);
 
         // Fetch the contributor based on the emailId
@@ -231,5 +238,61 @@ public class StudentController {
         return "add-session";
     }
     
+    
+    @PostMapping("/add-session.htm")
+    public String addCourse(@RequestParam LocalDate date,
+                            @RequestParam LocalTime time,
+                            @RequestParam int courseId,
+                            @RequestParam(required = false) String emailId,
+                            HttpSession session,
+                            RedirectAttributes redirectAttributes) {
+
+        // If emailId is provided in the request parameter, use it; otherwise, fall back to the session attribute
+        if (emailId == null) {
+            emailId = (String) session.getAttribute("emailId");
+        }
+//
+//        // Logging to check if emailId is received
+        System.out.println("Email ID in addSession POST: " + emailId);
+//
+        if (emailId == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Session expired or email ID not found.");
+            return "redirect:/login.htm";
+        }
+//
+//        // Find the contributor by emailId
+        Student student = studentDAO.findByEmailId(emailId);
+
+        if (student == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Student not found");
+            return "redirect:/student/home.htm?emailId=" + emailId;
+        }
+        
+        if(courseId == 0){
+            redirectAttributes.addFlashAttribute("errorMessage", "CourseId needed");
+            return "redirect:/student/home.htm?emailId=" + emailId;
+        }
+        
+        Courses course = courseDAO.getCourseById((long)courseId);
+        if(course == null){
+            redirectAttributes.addFlashAttribute("errorMessage", "Course not found");
+            return "redirect:/student/home.htm?emailId=" + emailId;
+        }
+        
+//        Contributor contributor = contributorDAO.findById(course.getContributor());
+//        long contributorId = course.getContributor().getContributorId();
+//
+//        // Create and save the course
+        StudySession studySession = new StudySession();
+        studySession.setDate(date);
+        studySession.setTime(time);
+        studySession.setContributor(course.getContributor());
+        studySession.setStudent(student);
+        studySession.setCourse(course);
+//
+        sessionDAO.createSession(studySession);
+
+        return "redirect:/student/add-session-success.htm";
+    }
     
 }

@@ -13,10 +13,15 @@
     <title>Course Added Successfully</title>
     <style>
         body {
-            background: url('images/background.jpg') no-repeat center center fixed;
-            background-size: cover;
+            margin: 0;
+            padding: 0;
             font-family: Arial, sans-serif;
-            color: #fff;
+            background-color: #4e5e6d;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+            color: #333;
         }
         .container {
             max-width: 400px;
@@ -30,11 +35,13 @@
         .container h2 {
             text-align: center;
             margin-bottom: 20px;
+            color: whitesmoke;
         }
         .container p {
             text-align: center;
             font-size: 18px;
             margin-bottom: 20px;
+            color: whitesmoke;
         }
         .container a {
             display: flex;
@@ -56,7 +63,7 @@
     <div class="container">
         <h2>Course Added Successfully!</h2>
         <p>Your course has been added to the database.</p>
-        <a href="add-course.htm">Add Another Course</a>
+        
         <br><br>
         <!--<a href="home.jsp">Go to Dashboard</a>-->
     </div>

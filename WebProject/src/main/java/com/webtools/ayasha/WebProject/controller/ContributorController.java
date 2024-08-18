@@ -192,7 +192,7 @@ public class ContributorController {
 
         if (emailId == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "Session expired or email ID not found.");
-            return "redirect:/contributor/login.htm";
+            return "redirect:/login.htm";
         }
 
         // Find the contributor by emailId
@@ -211,7 +211,7 @@ public class ContributorController {
 
         courseDAO.addCourse(course);
 
-        return "redirect:/contributor/add-course-success";
+        return "redirect:/contributor/add-course-success.htm";
     }
 
     
@@ -223,6 +223,11 @@ public class ContributorController {
             session.invalidate();
         }
         return "redirect:/login.htm?logout=true";
+    }
+    
+    @GetMapping("/add-course-success.htm")
+    public String courseAddSuccess(HttpServletRequest request, HttpServletResponse response){
+        return "add-course-success";
     }
     
      
