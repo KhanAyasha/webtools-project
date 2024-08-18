@@ -171,7 +171,7 @@ public class StudentController {
     public String getCoursesForStudent(Model model) {
         List<Courses> courses = courseDAO.getAllCourses(); 
         model.addAttribute("courses", courses);
-        return "my-courses"; 
+        return "all-courses"; 
     }
     
     @PostMapping("schedule-session.htm/{emailId}/{courseId}")
