@@ -136,43 +136,6 @@ public class ContributorController {
     }
 
     
-//    @PostMapping("/add-course.htm/{emailId}")
-//    public String addCourse(@RequestParam String courseName,
-//                            @RequestParam String description,
-//                            HttpSession session,
-//                            RedirectAttributes redirectAttributes) {
-//
-//        // Retrieve emailId from session
-//        String emailId = (String) session.getAttribute("emailId");
-//        System.out.println("email i . add course post"+ emailId);
-//
-//        // Check if emailId is present in the session
-//        if (emailId == null) {
-//            redirectAttributes.addFlashAttribute("errorMessage", "Session expired or email ID not found.");
-//            return "redirect:/contributor/login.htm";  // Redirect to login or an appropriate page
-//        }
-//
-//        // Find the contributor by emailId
-//        Contributor contributor = contributorDAO.findByEmailId(emailId);
-//
-//        if (contributor == null) {
-//            redirectAttributes.addFlashAttribute("errorMessage", "Contributor not found");
-//            return "redirect:/contributor/home.htm?emailId=" + emailId;
-//        }
-//
-//        // Create and save the course
-//        Courses course = new Courses();
-//        course.setContributor(contributor);
-//        course.setCourseName(courseName);
-//        course.setDescription(description);
-//
-//        courseDAO.addCourse(course);
-//
-//        // Add success message
-////        redirectAttributes.addFlashAttribute("successMessage", "Course added successfully.");
-//
-//        return "redirect:/contributor/add-course-success";
-//    }
 
     
     @PostMapping("/add-course.htm")
