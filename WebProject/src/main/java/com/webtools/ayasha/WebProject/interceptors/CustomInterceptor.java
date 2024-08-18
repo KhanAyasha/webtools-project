@@ -32,27 +32,35 @@ public class CustomInterceptor implements HandlerInterceptor{
                 "/register.htm", new String[]{"GET", "POST"},
                 "/access-denied.htm", new String[]{"GET"},
                 "/register-Success.htm", new String[]{"GET"},
-                "/images/background.jpg", new String[]{"GET","POST"}
+                "/images/background.jpg", new String[]{"GET","POST"},
+                "/student/*", new String[]{"GET","POST"},
+                "/contributor/*", new String[]{"GET","POST"}
+                
                 
                 
         );
         studentRoutes = Map.of(
-                "/student/*", new String[]{"GET", "POST"},
+                "/student/.", new String[]{"GET", "POST"},
+//                "/student/.*", new String[]{"GET", "POST"},
                 "/login.htm", new String[]{"GET", "POST"},
                 "/logout.htm", new String[]{"GET"},
                 "/register.htm", new String[]{"GET", "POST"},
                 "/access-denied.htm", new String[]{"GET"},
-                "/images/background.jpg", new String[]{"GET","POST"}
-//                "/student/profile", new String[]{"GET", "POST"}
+                "/images/background.jpg", new String[]{"GET","POST"},
+                "/student/*/{emailId}",new String[]{"GET","POST"}
+//                "/student/*", new String[]{"GET","POST"}
+//                
         );
         contributorRoutes = Map.of(
-                "/contributor/*", new String[]{"GET"},
+                "/student/.", new String[]{"GET", "POST"},
+//                "/contributor/.*", new String[]{"GET"},
                 "/contributor/submit", new String[]{"POST"},
                 "/login.htm", new String[]{"GET", "POST"},
                 "/logout.htm", new String[]{"GET"},
                 "/register.htm", new String[]{"GET", "POST"},
                 "/access-denied.htm", new String[]{"GET"},
                 "/images/background.jpg", new String[]{"GET","POST"}
+//                "/contributor/*", new String[]{"GET","POST"}
         );
     }
     
@@ -68,28 +76,28 @@ public class CustomInterceptor implements HandlerInterceptor{
     }
 
     
-    @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        System.out.println("Pre Handle method is Called");        
-        String servletPath = request.getServletPath();
-        String method = request.getMethod();
-
-        HttpSession session = request.getSession(false);
-        String role = "unauthenticated";
-        if (session != null && session.getAttribute("role") != null) {
-            role = (String) session.getAttribute("role");
-        }
-        System.out.println("role "+ role );
-        Map<String, String[]> authorizedRoutes = getAuthorizedRoutes(role);
-
-        String allowedPath = checkServletPathAllowedAndReturnAllowedPath(servletPath, authorizedRoutes.keySet());
-        if (allowedPath != null && isMethodAllowed(method, authorizedRoutes.get(allowedPath))) {
-            return true;
-        }
-
-        response.sendRedirect(request.getContextPath() + "/login.htm");
-        return false;
-    }
+//    @Override
+//    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+//        System.out.println("Pre Handle method is Called");        
+//        String servletPath = request.getServletPath();
+//        String method = request.getMethod();
+//
+//        HttpSession session = request.getSession(false);
+//        String role = "unauthenticated";
+//        if (session != null && session.getAttribute("role") != null) {
+//            role = (String) session.getAttribute("role");
+//        }
+//        System.out.println("role "+ role );
+//        Map<String, String[]> authorizedRoutes = getAuthorizedRoutes(role);
+//
+//        String allowedPath = checkServletPathAllowedAndReturnAllowedPath(servletPath, authorizedRoutes.keySet());
+//        if (allowedPath != null && isMethodAllowed(method, authorizedRoutes.get(allowedPath))) {
+//            return true;
+//        }
+//
+//        response.sendRedirect(request.getContextPath() + "/logout.htm");
+//        return false;
+//    }
 
     private Map<String, String[]> getAuthorizedRoutes(String role) {
         return switch (role) {

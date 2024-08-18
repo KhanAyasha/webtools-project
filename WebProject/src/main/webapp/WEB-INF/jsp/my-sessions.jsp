@@ -88,6 +88,7 @@
                                 <!--<h5 class="card-title">Session ID: ${session.studySessionID}</h5>-->
                                 <p class="card-text">Course Name: ${session.course.courseName}</p>
                                 <p class="card-text">Contributor: ${session.contributor.firstName} ${session.contributor.lastName}</p>
+                                <p class="card-text">Contributor: ${session.student.firstName} ${session.student.lastName}</p>
                                 <p class="card-text">Date: ${session.date}</p>
                                 <p class="card-text">Time: ${session.time}</p>
                             </div>

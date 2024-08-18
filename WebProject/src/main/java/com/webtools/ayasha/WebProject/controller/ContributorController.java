@@ -282,44 +282,7 @@ public class ContributorController {
 //        
 //    }   
     
-//    @PostMapping("/add-course.htm")
-//    public ResponseEntity<String> addcousefrombackend(HttpServletRequest request,@PathVariable Courses course) {
-//        try {
-//            
-//            courseDAO.addCourse(course);
-//            return ResponseEntity.ok("Course Deleted Successfully!");
-//        } catch (Exception e) {
-//            return ResponseEntity.notFound().build();
-//        }
-//    }
-    
-    
-//    @PostMapping("/add-course.htm/{contributorId}")
-//    public String submitAddCourseForm(
-//            @RequestBody Courses course,
-//            @PathVariable long contributorId,
-//            Model model) {
-//
-//        if (contributorId == 0) {
-//            model.addAttribute("error", "Contributor ID cannot be 0 or empty");
-//            return "errorPage"; // Return to an error page or the same form page with an error message
-//        }
-//
-//        Contributor contributor = contributorDAO.findById(contributorId);
-//        if (contributor == null) {
-//            model.addAttribute("error", "Contributor not found");
-//            return "errorPage"; // Return to an error page or the same form page with an error message
-//        }
-//
-//        // Associate the course with the contributor
-//        course.setContributor(contributor);
-//        courseDAO.addCourse(course);
-//
-//        model.addAttribute("message", "Course added successfully");
-//        return "successPage"; // Return to a success page or the same form page with a success message
-//    }
-    
-    
+
     
     
 }

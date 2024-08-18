@@ -42,15 +42,17 @@
 <nav>
     <ul>
         <c:set var="role" value="${sessionScope.role}"/>
-        <li><a href="home.htm">Home</a></li>
+        
         
         <c:if test="${role eq 'student'}">
+            <li><a href="${pageContext.request.contextPath}/student/home.htm">Home</a></li>
             <li><a href="${pageContext.request.contextPath}/student/my-sessions.htm/${sessionScope.emailId}">View Sessions</a></li>
             <li><a href="${pageContext.request.contextPath}/student/view-courses.htm">View Courses</a></li>
             <li><a href="${pageContext.request.contextPath}/student/add-session.htm/${sessionScope.emailId}">Schedule a session</a></li>
         </c:if>
         
         <c:if test="${role eq 'contributor'}">
+            <li><a href="${pageContext.request.contextPath}/contributor/home.htm">Home</a></li>
             <li><a href="${pageContext.request.contextPath}/contributor/my-sessions.htm/${sessionScope.emailId}">View Sessions</a></li>
             <li><a href="${pageContext.request.contextPath}/contributor/add-course.htm/${sessionScope.emailId}">Add Courses</a></li>
             <li><a href="${pageContext.request.contextPath}/contributor/my-courses.htm/${sessionScope.emailId}">My Courses</a></li>

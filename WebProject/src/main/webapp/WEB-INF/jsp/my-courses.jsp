@@ -88,10 +88,10 @@
                             <strong>Description:</strong> ${course.courseId}<br>
                             <strong>Description:</strong> ${course.description}<br>
                             <strong>Contributor:</strong> ${course.contributor.contributorId}<br>
-                            <strong>Contributor:</strong> ${course.contributor.firstName}<br>
-                            <strong>Contributor:</strong> ${course.contributor.lastName}<br>
-                            <strong>Contributor:</strong> ${course.contributor.expertise}<br>
-                            <strong>Contributor:</strong> ${course.contributor.experienceYears}<br>
+                            <strong>First Name:</strong> ${course.contributor.firstName}<br>
+                            <strong>Last Name:</strong> ${course.contributor.lastName}<br>
+                            <strong>Expertise:</strong> ${course.contributor.expertise}<br>
+                            <strong>Experience:</strong> ${course.contributor.experienceYears}<br>
                         </p>
                             <!--<a href="${pageContext.request.contextPath}/delete-course.htm/${course.contributor.contributorId}" class="btn btn-primary btn-schedule">Schedule Appointment</a>-->
         <a href="#" onclick="deleteCourse(${course.courseId})" class="btn btn-primary btn-schedule">Delete Course</a>
