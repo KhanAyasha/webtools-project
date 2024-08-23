@@ -97,7 +97,7 @@ public class ContributorController {
     
     
     @PutMapping("/update/{emailId}")
-    public ResponseEntity<String> updateContributor(@PathVariable String emailId, @RequestBody Contributor updatedContributor) {
+    public ResponseEntity<String> updateContributor(HttpSession session, @PathVariable String emailId, @RequestBody Contributor updatedContributor) {
         // Find the contributor by ID
        Contributor contributor = contributorDAO.findByEmailId(emailId);
         if (contributor != null) {
@@ -221,14 +221,7 @@ public class ContributorController {
         }
     }
     
-    
-     // Delete a session
-    @DeleteMapping("/cancel-session.htm/{sessionId}")
-    public ResponseEntity<String> deleteSession(@PathVariable long sessionId) {
-        sessionDAO.deleteSession(sessionId);
-        return ResponseEntity.ok("Session deleted successfully!");
-    }
-    
+
 
     @GetMapping("/my-courses.htm/{emailId}")
     public String getMyCourses(HttpServletRequest request, @PathVariable String emailId, Model model) {
@@ -268,20 +261,7 @@ public class ContributorController {
     }
     
     
-    // API to add a new course
-//    @PostMapping("/add-course.htm")
-//    public ResponseEntity<String> addCourse( HttpServletRequest request,@RequestBody Courses course) {
-//        HttpSession session = request.getSession();
-//        if(session != null){
-//            courseDAO.addCourse(course);
-//            return ResponseEntity.ok("Course added successfully");
-//        }else{
-//            return ResponseEntity.ok().body("You are logged out.");
-//        }
-//
-//        
-//    }   
-    
+  
 
     
     

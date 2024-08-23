@@ -63,7 +63,7 @@
                     <div class="card-body">
                         <h5 class="card-title">${course.courseName}</h5>
                         <p class="card-text">
-                            <strong>Description:</strong> ${course.courseId}<br>
+                            <strong>Course ID</strong> ${course.courseId}<br>
                             <strong>Description:</strong> ${course.description}<br>
                             <strong>Contributor:</strong> ${course.contributor.contributorId}<br>
                             <strong>First Name:</strong> ${course.contributor.firstName}<br>

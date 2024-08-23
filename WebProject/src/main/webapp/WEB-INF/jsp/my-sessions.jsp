@@ -85,7 +85,8 @@
                     <div class="col-md-4">
                         <div class="card">
                             <div class="card-body">
-                                <!--<h5 class="card-title">Session ID: ${session.studySessionID}</h5>-->
+                                <h5 class="card-title">Session ID: ${session.studySessionID}</h5>
+                                <p class="card-title">Course ID: ${session.course.courseId}</p>
                                 <p class="card-text">Course Name: ${session.course.courseName}</p>
                                 <p class="card-text">Contributor: ${session.contributor.firstName} ${session.contributor.lastName}</p>
                                 <p class="card-text">Contributor: ${session.student.firstName} ${session.student.lastName}</p>

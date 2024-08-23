@@ -58,12 +58,6 @@ public class CourseController {
         }
     }
 
-//    // API to get all courses
-//    @GetMapping("/all")
-//    public ResponseEntity<List<Courses>> getAllCourses() {
-//        List<Courses> courses = courseService.getAllCourses();
-//        return ResponseEntity.ok(courses);
-//    }
     
     // API to update course details
     @PutMapping("/{courseId}")

@@ -1,0 +1,558 @@
+DAO classes
+	2.1 Base DAO
+	2.2 Student DAO
+	2.3 Contributor DAO
+	2.4 courses DAO
+	2.5 Session DAO
+
+
+
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.webtools.ayasha.WebProject.dao;
+
+
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+
+public abstract class BaseDAO {
+
+
+    private static final ThreadLocal sessionThread = new ThreadLocal();
+    private static final SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
+
+
+    public BaseDAO() {
+        
+    }
+
+    protected Session getSession() {
+        
+        Session session = (Session) BaseDAO.sessionThread.get();
+
+        if (session == null) {
+            session = sessionFactory.openSession();
+            BaseDAO.sessionThread.set(session);
+        }
+        return session;
+    
+    }
+
+    protected void beginTransaction() {
+       getSession().beginTransaction();
+    }
+
+    
+	public void commitTransaction() {
+		
+		this.getSession().getTransaction().commit();
+
+	}
+
+	
+	public void rollbackTransaction() {
+		
+		this.getSession().getTransaction().rollback();
+
+	}
+
+        protected void closeSession() {
+            getSession().close();
+            }
+
+
+    //     Optional: Method to close the SessionFactory, usually called when the application is shutting down
+        public void closeSessionFactory() {
+            getSession().close();
+           }
+    
+}
+
+
+
+-----------------------------------------------------------------------------------------
+
+
+
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.webtools.ayasha.WebProject.dao;
+
+import com.webtools.ayasha.WebProject.model.Contributor;
+import jakarta.persistence.Query;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Repository;
+
+/**
+ *
+ * @author ayashakhan
+ */
+
+@Repository
+@Qualifier("contributorDAO")
+public class ContributorDAO extends BaseDAO{
+    
+    public List<Contributor> getAllContributor() {
+//        Session session = getSession();
+//        return session.createQuery("FROM Contributor", Contributor.class).list();
+//        
+        
+//        beginTransaction();
+        Query query = getSession().createQuery("FROM Contributor", Contributor.class);
+        List<Contributor> contributorList = query.getResultList();
+//        closeSession();
+        return contributorList;
+    }
+    
+    public Contributor findByEmailId(String emailId) {
+            return getSession()
+                    .createNamedQuery("selectByContributorEmailId", Contributor.class)
+                    .setParameter("emailId", emailId)
+                    .uniqueResult();
+        }
+
+    public Contributor findById(long contributorId) {
+        Contributor contributor = getSession().get(Contributor.class, contributorId);
+        return contributor;
+    }
+
+    public void saveContributor(Contributor contributor) {
+        try {
+            beginTransaction();
+            getSession().save(contributor);
+            commitTransaction();
+            System.out.println("Contributor saved successfully");
+        } catch (Exception e) {
+            System.err.println("Error saving contributor: " + e.getMessage());
+            e.printStackTrace();
+            if (getSession().getTransaction() != null) {
+                getSession().getTransaction().rollback();
+            }
+            throw e;
+        } 
+//        finally {
+//            closeSession();
+//        }
+    }
+
+
+    public void updateContributor(Contributor contributor) {
+        beginTransaction();
+        getSession().update(contributor);
+        commitTransaction();
+        closeSession();
+    }
+
+    public void deleteContributor(Contributor contributor) {
+        beginTransaction();
+        getSession().delete(contributor);
+        commitTransaction();
+//        closeSession();
+    }
+
+    
+}
+
+
+
+
+-----------------------------------------------------------------
+
+
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.webtools.ayasha.WebProject.dao;
+
+import com.webtools.ayasha.WebProject.model.Student;
+import jakarta.persistence.Query;
+import java.util.List;
+import java.util.Optional;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Repository;
+
+/**
+ *
+ * @author ayashakhan
+ */
+
+@Repository
+@Qualifier("studentDAO")
+public class StudentDAO extends BaseDAO{
+    
+
+    public List<Student> getAllStudents() {
+//        Session session = getSession();
+//        return session.createQuery("FROM Student", Student.class).list();
+//        
+        
+//        beginTransaction();
+        Query query = getSession().createQuery("FROM Student", Student.class);
+        List<Student> studentList = query.getResultList();
+//        closeSession();
+        return studentList;
+    }
+    
+    public Student findByEmailId(String emailId) {
+            return getSession()
+                    .createNamedQuery("selectByStudentEmailId", Student.class)
+                    .setParameter("emailId", emailId)
+                    .uniqueResult();
+    }
+
+
+    public Optional<Student> findById(long studentId) {
+        Student student = getSession().get(Student.class, studentId);
+        return Optional.ofNullable(student);
+    }
+
+    public void saveStudent(Student student) {
+        try {
+            beginTransaction();
+            getSession().save(student);
+            commitTransaction();
+            System.out.println("Student saved successfully");
+        } catch (Exception e) {
+            System.err.println("Error saving student: " + e.getMessage());
+            e.printStackTrace();
+            if (getSession().getTransaction() != null) {
+                getSession().getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+//            closeSession();
+        }
+    }
+
+
+    public void updateStudent(Student student) {
+        beginTransaction();
+        getSession().update(student);
+        commitTransaction();
+//        closeSession();
+    }
+
+    public void deleteStudent(Student student) {
+        beginTransaction();
+        getSession().delete(student);
+        commitTransaction();
+//        closeSession();
+    }
+
+    
+    
+}
+
+
+
+
+---------------------------------------------------------------------------------------
+
+
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.webtools.ayasha.WebProject.dao;
+
+import com.webtools.ayasha.WebProject.model.Courses;
+import java.util.List;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.query.Query;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Repository;
+
+/**
+ *
+ * @author ayashakhan
+ */
+
+@Repository
+@Qualifier("courseDAO")
+public class CourseDAO extends BaseDAO{
+    
+    public Courses getCourseById(long courseId) {
+        Session session = getSession();
+        try {
+            return session.get(Courses.class, courseId);
+        } finally {
+//            closeSession();
+        }
+    }
+    
+    public List<Courses> getCourseByContributorId(long contributorId) {
+        Session session = getSession();
+        try {
+            // Adjust the query to match your entity structure
+            Query<Courses> query = session.createQuery("FROM Courses WHERE contributor.contributorId = :contributorId", Courses.class);
+            query.setParameter("contributorId", contributorId);
+            return query.list();
+        } finally {
+            // Close the session if you're managing it manually
+            // closeSession();
+        }
+    }
+
+    
+    public List<Courses> getAllCourses() {
+        Session session = getSession();
+        try {
+            Query<Courses> query = session.createQuery("FROM Courses", Courses.class);
+            return query.list();
+        } 
+        finally {
+//            closeSession();
+        }
+    }
+
+    public Courses getCourseByName(String courseName) {
+        Session session = getSession();
+        try {
+            Query<Courses> query = session.createQuery("FROM Courses WHERE courseName = :courseName", Courses.class);
+            query.setParameter("courseName", courseName);
+            return query.uniqueResult();
+        } 
+        finally {
+//            closeSession();
+        }
+    }
+    
+    public void addCourse(Courses course) {
+        beginTransaction();
+        try {
+            getSession().save(course);
+            commitTransaction();
+        } catch (Exception e) {
+            rollbackTransaction();
+            throw e;
+        } 
+//        finally {
+//            closeSession();
+//        }
+    }
+
+    public void updateCourse(Courses course) {
+        Session session = getSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            session.update(course);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw e;
+        } 
+//        finally {
+//            closeSession();
+//        }
+    }
+    
+    public void deleteCourse(long courseId) {
+        Session session = getSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            Courses course = session.get(Courses.class, courseId);
+            if (course != null) {
+                session.delete(course);
+            }
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw e;
+        } 
+//        finally {
+//            closeSession();
+//        }
+    }
+    
+    
+    
+}
+
+
+--------------------------------------------------------------------------
+
+
+
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.webtools.ayasha.WebProject.dao;
+
+import com.webtools.ayasha.WebProject.model.Contributor;
+import com.webtools.ayasha.WebProject.model.StudySession;
+import java.util.List;
+import org.hibernate.Session;
+import org.hibernate.query.Query;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Repository;
+
+/**
+ *
+ * @author ayashakhan
+ */
+
+@Repository
+@Qualifier("sessionDAO")
+public class SessionDAO extends BaseDAO{
+    
+    // Get all sessions
+    public List<StudySession> getAllSessions() {
+        Session session = getSession();
+        try {
+            Query<StudySession> query = session.createQuery("from StudySession", StudySession.class);
+            return query.getResultList();
+        } 
+        finally {
+//            closeSession();
+        }
+    }
+
+    // Create a new session
+    public StudySession createSession(StudySession studySession) {
+        Session session = getSession();
+        try {
+            beginTransaction();
+            session.save(studySession);
+            commitTransaction();
+            return studySession;
+        } catch (Exception e) {
+            rollbackTransaction();
+            throw e;
+        } 
+//        finally {
+//            closeSession();
+//        }
+    }
+
+    // Update an existing session
+    public StudySession updateSession(int id, StudySession studySession) {
+        Session session = getSession();
+        try {
+            beginTransaction();
+            StudySession existingSession = session.get(StudySession.class, id);
+            if (existingSession != null) {
+                existingSession.setCourse(studySession.getCourse());
+                existingSession.setContributor(studySession.getContributor());
+                existingSession.setTime(studySession.getTime());
+                existingSession.setDate(studySession.getDate());
+                existingSession.setStudent(studySession.getStudent());
+                session.update(existingSession);
+                commitTransaction();
+                return existingSession;
+            } else {
+                return null; // or throw an exception
+            }
+        } catch (Exception e) {
+            rollbackTransaction();
+            throw e;
+        } 
+//        finally {
+//            closeSession();
+//        }
+    }
+
+    // Delete a session
+    public void deleteSession(long sessionId) {
+        Session session = getSession();
+        try {
+            beginTransaction();
+            StudySession sessionToDelete = session.get(StudySession.class, sessionId);
+            if (sessionToDelete != null) {
+                session.delete(sessionToDelete);
+                commitTransaction();
+            }
+        } catch (Exception e) {
+            rollbackTransaction();
+            throw e;
+        } 
+//        finally {
+//            closeSession();
+//        }
+    }
+
+    // Get sessions by courseId
+    public List<StudySession> getSessionsByCourseId(int courseId) {
+        Session session = getSession();
+        try {
+            Query<StudySession> query = session.createQuery(
+                "from StudySession where course.courseId = :courseId", StudySession.class);
+            query.setParameter("courseId", courseId);
+            return query.getResultList();
+        } 
+        finally {
+//            closeSession();
+        }
+    }
+
+    // Get sessions by contributorId
+    public List<StudySession> getSessionsByContributorId(long contributorId) {
+        Session session = getSession();
+        try {
+            Query<StudySession> query = session.createQuery(
+                "from StudySession where contributor.contributorId = :contributorId", StudySession.class);
+            query.setParameter("contributorId", contributorId);
+            return query.getResultList();
+        } 
+        finally {
+//            closeSession();
+        }
+    }
+
+    // Get sessions by studentId
+    public List<StudySession> getSessionsByStudentId(long studentId) {
+        Session session = getSession();
+        try {
+            Query<StudySession> query = session.createQuery(
+                "from StudySession where student.studentId = :studentId", StudySession.class);
+            query.setParameter("studentId", studentId);
+            return query.getResultList();
+        } finally {
+//            closeSession();
+        }
+    }
+    
+    public void saveStudySession(StudySession session) {
+        try {
+            getSession();
+            beginTransaction();
+            getSession().save(session);
+            commitTransaction();
+            System.out.println("Session saved successfully");
+        } catch (Exception e) {
+            System.err.println("Error saving session: " + e.getMessage());
+            e.printStackTrace();
+            if (getSession().getTransaction() != null) {
+                getSession().getTransaction().rollback();
+            }
+            throw e;
+        } 
+        finally {
+//            closeSession(); // Ensure the session is closed in the finally block
+        }
+    }
+
+    
+}
+
+

@@ -69,7 +69,7 @@ public class AuthController {
         String role = loginRequest.getRole();
 
         // Use the existing method to check credentials and get the user
-        Object user = checkCredentialsAndGetUser(emailId, password, role);
+        Object user = validateCredentials(emailId, password, role);
 
         if (user != null) {
             // Set session attributes based on role
@@ -187,7 +187,7 @@ public class AuthController {
     }
 //   
     
-    public Object checkCredentialsAndGetUser(String emailId, String password, String role) {
+    public Object validateCredentials(String emailId, String password, String role) {
         if (role == null) return null;
         System.out.println(emailId);
 
@@ -205,7 +205,7 @@ public class AuthController {
         } else if (role.equals("contributor")) {
             Contributor contributor = contributorDAO.findByEmailId(emailId);
             if (contributor == null) return null;
-            System.out.println("contribuot password " + contributor.getPassword() );
+            System.out.println("contributor password " + contributor.getPassword() );
             boolean verified = emailId.equals(contributor.getEmailId()) && passwordEncoder.matches(password, contributor.getPassword());
             return verified ? contributor : null;
         }

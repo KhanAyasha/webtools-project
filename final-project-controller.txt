@@ -1,0 +1,938 @@
+Ayasha final project:
+
+*****************************************************************************************************************************
+
+
+1. Controllers
+	1.1. Auth Controller
+	1.2. Student Controller
+	1.3. Contributor Controller
+	1.4. Course Controller
+	1.5. session Controller
+
+package com.webtools.ayasha.WebProject.controller;
+
+
+import com.webtools.ayasha.WebProject.dao.ContributorDAO;
+import com.webtools.ayasha.WebProject.dao.StudentDAO;
+import com.webtools.ayasha.WebProject.model.Contributor;
+import com.webtools.ayasha.WebProject.model.LoginRequest;
+import com.webtools.ayasha.WebProject.model.RegisterRequest;
+import com.webtools.ayasha.WebProject.model.Student;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+//
+@Controller
+@RequestMapping("/")
+public class AuthController {
+    
+    private final StudentDAO studentDAO;
+    private final ContributorDAO contributorDAO;
+    private final PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public AuthController(StudentDAO studentDAO, ContributorDAO contributorDAO) {
+        this.studentDAO = studentDAO;
+        this.contributorDAO = contributorDAO;
+        this.passwordEncoder = new BCryptPasswordEncoder(); // Initialize the encoder
+    }
+    
+    @GetMapping("/access-denied.htm")
+	public String accessDenied() {
+            System.out.println("inside access denied");
+		return "access-denied";
+	}    
+    
+    @GetMapping("/login.htm")
+    public String loginPage(Model model, HttpServletRequest request) {
+        System.out.println("Inside get login endpoint");
+        HttpSession httpSession = request.getSession(false);
+        if(httpSession != null) {
+            if (null != httpSession.getAttribute("role")) {
+               if (httpSession.getAttribute("role").equals("student")) {
+                    return "redirect:/student/home.htm";
+                } else if (httpSession.getAttribute("role").equals("student")){
+                    return "redirect:/contributor/home.htm";
+                }
+            }//role
+        
+        }//httpsession
+        return "login";
+    }
+        
+    @PostMapping("/login.htm")
+    public String login(@RequestBody LoginRequest loginRequest, HttpServletRequest request) {
+        System.out.println("Login endpoint hit");
+        HttpSession httpSession = request.getSession();
+        String emailId = loginRequest.getEmailId();
+        System.out.println("email id taken"+emailId);
+        String password = loginRequest.getPassword();
+        String role = loginRequest.getRole();
+
+        // Use the existing method to check credentials and get the user
+        Object user = validateCredentials(emailId, password, role);
+
+        if (user != null) {
+            // Set session attributes based on role
+            System.out.println("I got the user"+user.toString());
+            if ("student".equalsIgnoreCase(role)) {
+                httpSession.setAttribute("role", role.toLowerCase());
+                httpSession.setAttribute("emailId", emailId);
+                System.out.println("login success, going student home"+emailId);
+                return "redirect:/student/home.htm";
+            } else if ("contributor".equalsIgnoreCase(role)) {
+                httpSession.setAttribute("role", role.toLowerCase());
+                httpSession.setAttribute("emailId", emailId);
+                System.out.println("login success, going contri home"+emailId);
+                return "redirect:/contributor/home.htm";
+            }
+        }
+        System.out.println("You got some error");
+        // If credentials are invalid
+        return "redirect:/login.htm?error=Invalid credentials or role";
+    }
+
+
+
+    @GetMapping("/register.htm")
+    public String registerPage(Model model, HttpServletRequest request) {
+        System.out.println("Inside get login endpoint");
+        HttpSession httpSession = request.getSession(false);
+        if (httpSession != null) {
+            if (null != httpSession.getAttribute("role")) {
+                if (httpSession.getAttribute("role").equals("student")) {
+                    return "redirect:/student/home.htm";
+                } else if (httpSession.getAttribute("role").equals("contributor")) {
+                    return "redirect:/contributor/home.htm";
+                }
+            }
+        }
+        return "register"; // Return the registration JSP page
+    }
+
+    // POST API to handle registration
+    @PostMapping("/register.htm")
+    public String register(@RequestBody RegisterRequest requestBody, HttpServletRequest request) {
+
+        System.out.println("Register endpoint hit");
+        HttpSession session = request.getSession();
+        String role = requestBody.getRole();
+
+        if ("student".equalsIgnoreCase(role)) {
+            // Check if the student already exists
+            Student existingStudent = studentDAO.findByEmailId(requestBody.getEmailId());
+            if (existingStudent != null) {
+                return "redirect:/register.htm?error=Email already registered as student";
+            }
+
+            // Create a new student and save
+            Student student = new Student();
+            student.setFirstName(requestBody.getFirstName());
+            student.setLastName(requestBody.getLastName());
+            student.setEmailId(requestBody.getEmailId());
+            student.setPassword(passwordEncoder.encode(requestBody.getPassword()));
+//            student.setPassword(requestBody.getPassword());
+            student.setMajor(requestBody.getMajor());
+            studentDAO.saveStudent(student);
+
+            // Set session attribute and redirect to student home page
+            session.invalidate();
+            System.out.println("before directing to successful registeration page");
+            return "redirect:/register-Success.htm";
+
+        } else if ("contributor".equalsIgnoreCase(role)) {
+            // Check if the contributor already exists
+            Contributor existingContributor = contributorDAO.findByEmailId(requestBody.getEmailId());
+            if (existingContributor != null) {
+                return "redirect:/register.htm?error=Email already registered as contributor";
+            }
+
+            // Create a new contributor and save
+            Contributor contributor = new Contributor();
+            contributor.setFirstName(requestBody.getFirstName());
+            contributor.setLastName(requestBody.getLastName());
+            contributor.setEmailId(requestBody.getEmailId());
+            contributor.setPassword(passwordEncoder.encode(requestBody.getPassword()));
+//            contributor.setPassword(requestBody.getPassword());
+            int experienceYears = (requestBody.getExperienceYears() != null) ? requestBody.getExperienceYears() : 0;
+            contributor.setExperienceYears(experienceYears);
+
+            contributor.setExpertise(requestBody.getExpertise());
+//            contributor.setExperienceYears(requestBody.getExperienceYears());
+            contributorDAO.saveContributor(contributor);
+
+            session.invalidate();
+            return "redirect:/register-Success.htm";
+
+        } else {
+            // Invalid role
+            System.out.println("You did not register");
+            return "redirect:/register.htm?error=Invalid role selected";
+        }
+    }
+
+        
+    @GetMapping("/register-Success.htm")
+    public String registrationSuccessPage() {
+        System.out.println("User is successfully registered!");
+	return "registration-success";
+    }
+
+    @GetMapping("/logout.htm")
+    public String logout(HttpServletRequest request, HttpServletResponse response) {
+        HttpSession session = request.getSession(false);
+        if(session != null) {
+            session.invalidate();
+        }
+        return "redirect:/login.htm?logout=true";
+    }
+//   
+    
+    public Object validateCredentials(String emailId, String password, String role) {
+        if (role == null) return null;
+        System.out.println(emailId);
+
+        if (role.equals("student")) {    
+            Student student = studentDAO.findByEmailId(emailId);
+            System.out.println("email"+emailId);
+            if (student == null) {
+                System.out.println("student is still null");
+                return null;
+            }
+            System.out.println("student password " + student.getPassword() );
+            boolean verified = emailId.equals(student.getEmailId()) && passwordEncoder.matches(password, student.getPassword());
+            return verified ? student : null;
+
+        } else if (role.equals("contributor")) {
+            Contributor contributor = contributorDAO.findByEmailId(emailId);
+            if (contributor == null) return null;
+            System.out.println("contributor password " + contributor.getPassword() );
+            boolean verified = emailId.equals(contributor.getEmailId()) && passwordEncoder.matches(password, contributor.getPassword());
+            return verified ? contributor : null;
+        }
+
+        return null;
+    }
+
+
+}
+
+
+---------------------------------------------------------
+
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.webtools.ayasha.WebProject.controller;
+
+import com.webtools.ayasha.WebProject.dao.ContributorDAO;
+import com.webtools.ayasha.WebProject.dao.CourseDAO;
+import com.webtools.ayasha.WebProject.dao.SessionDAO;
+import com.webtools.ayasha.WebProject.model.Contributor;
+import com.webtools.ayasha.WebProject.model.Courses;
+import com.webtools.ayasha.WebProject.model.StudySession;
+import com.webtools.ayasha.WebProject.service.ContributorService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+/**
+ *
+ * @author ayashakhan
+ */
+
+@Controller
+@RequestMapping("/contributor")
+public class ContributorController {
+    
+    private final ContributorDAO contributorDAO;
+    private final CourseDAO courseDAO;
+    private final SessionDAO sessionDAO;
+
+    @Autowired
+    public ContributorController(ContributorDAO contributorDAO,CourseDAO courseDAO,SessionDAO sessionDAO) {
+        this.contributorDAO = contributorDAO;
+        this.courseDAO =  courseDAO;
+        this.sessionDAO = sessionDAO;
+    }
+    
+    @GetMapping("/AllContributors")
+    @ResponseBody
+    public List<Contributor> getAllContributor() {
+        
+        return contributorDAO.getAllContributor();
+    }
+    
+    @GetMapping("/{emailId}")
+    @ResponseBody
+    public ResponseEntity<Contributor> getStudentProfile(@PathVariable String emailId) {
+        Contributor conOptional = contributorDAO.findByEmailId(emailId);
+        if (conOptional != null) {
+            return ResponseEntity.ok(conOptional);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    
+    @GetMapping("/home.htm")
+    public String homePage(HttpSession session, Model model) {
+        System.out.println("hit home contributor");
+        String role = (String) session.getAttribute("role");
+        String emailId = (String) session.getAttribute("emailId");
+        
+        if ("contributor".equalsIgnoreCase(role)) {
+            Contributor contributor = contributorDAO.findByEmailId(emailId); // Fetch contributor details
+            if (contributor != null) {
+                model.addAttribute("authenticatedUser", contributor);
+            }
+        }
+
+        model.addAttribute("role", role);
+        System.out.println("authenticated contributor");
+        return "home";
+    }
+    
+    
+    
+    @PutMapping("/update/{emailId}")
+    public ResponseEntity<String> updateContributor(HttpSession session, @PathVariable String emailId, @RequestBody Contributor updatedContributor) {
+        // Find the contributor by ID
+       Contributor contributor = contributorDAO.findByEmailId(emailId);
+        if (contributor != null) {
+            Contributor existingContributor = contributor;
+            
+            // Update the fields
+            existingContributor.setFirstName(updatedContributor.getFirstName());
+            existingContributor.setLastName(updatedContributor.getLastName());
+            existingContributor.setExpertise(updatedContributor.getExpertise());
+            existingContributor.setExperienceYears(updatedContributor.getExperienceYears());
+
+            // Update the contributor in the database
+            contributorDAO.updateContributor(existingContributor);
+            return ResponseEntity.ok("Contributor updated successfully.");
+        } else {
+            return ResponseEntity.status(404).body("Contributor not found.");
+        }
+    }
+    
+    @GetMapping("/add-course.htm/{emailId}")
+    public String showAddCourseForm(@PathVariable String emailId,
+                                    HttpSession session,
+                                    Model model) {
+
+        // Store the emailId in the session if needed
+        session.setAttribute("emailId", emailId);
+
+        // Fetch the contributor based on the emailId
+        Contributor contributor = contributorDAO.findByEmailId(emailId);
+
+        // Add the contributor to the model if needed
+        model.addAttribute("contributor", contributor);
+
+        // Return the view name for adding a course
+        return "add-course";
+    }
+
+    
+
+    
+    @PostMapping("/add-course.htm")
+    public String addCourse(@RequestParam String courseName,
+                            @RequestParam String description,
+                            @RequestParam(required = false) String emailId,
+                            HttpSession session,
+                            RedirectAttributes redirectAttributes) {
+
+        // If emailId is provided in the request parameter, use it; otherwise, fall back to the session attribute
+        if (emailId == null) {
+            emailId = (String) session.getAttribute("emailId");
+        }
+
+        // Logging to check if emailId is received
+        System.out.println("Email ID in addCourse POST: " + emailId);
+
+        if (emailId == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Session expired or email ID not found.");
+            return "redirect:/login.htm";
+        }
+
+        // Find the contributor by emailId
+        Contributor contributor = contributorDAO.findByEmailId(emailId);
+
+        if (contributor == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Contributor not found");
+            return "redirect:/contributor/home.htm?emailId=" + emailId;
+        }
+
+        // Create and save the course
+        Courses course = new Courses();
+        course.setContributor(contributor);
+        course.setCourseName(courseName);
+        course.setDescription(description);
+
+        courseDAO.addCourse(course);
+
+        return "redirect:/contributor/add-course-success.htm";
+    }
+
+    
+    
+    @GetMapping("/logout.htm")
+    public String logout(HttpServletRequest request, HttpServletResponse response) {
+        HttpSession session = request.getSession(false);
+        if(session != null) {
+            session.invalidate();
+        }
+        return "redirect:/login.htm?logout=true";
+    }
+    
+    @GetMapping("/add-course-success.htm")
+    public String courseAddSuccess(HttpServletRequest request, HttpServletResponse response){
+        return "add-course-success";
+    }
+    
+     
+    
+    @GetMapping("/my-sessions.htm/{emailId}")
+    public String getSessionbyContributorEmail(HttpServletRequest request, @PathVariable String emailId, Model model) {
+        HttpSession httpSession = request.getSession(false);
+        if (httpSession != null) {
+            Contributor contributor = contributorDAO.findByEmailId(emailId);
+
+            if (contributor == null) {
+                model.addAttribute("message", "Contributor not found.");
+                return "my-sessions"; // Return the same JSP page with the message
+            }
+
+            List<StudySession> studySessions = sessionDAO.getSessionsByContributorId(contributor.getContributorId());
+
+            if (studySessions == null || studySessions.isEmpty()) {
+                model.addAttribute("message", "No study sessions found.");
+            } else {
+                model.addAttribute("studySessions", studySessions);
+            }
+
+            return "my-sessions"; // Return the JSP page
+        } else {
+            model.addAttribute("message", "Session not found.");
+            return "my-sessions";
+        }
+    }
+    
+
+
+    @GetMapping("/my-courses.htm/{emailId}")
+    public String getMyCourses(HttpServletRequest request, @PathVariable String emailId, Model model) {
+        HttpSession httpSession = request.getSession(false);
+        if (httpSession != null) {
+            Contributor contributor = contributorDAO.findByEmailId(emailId);
+
+            if (contributor == null) {
+                model.addAttribute("message", "Contributor not found.");
+                return "home"; // Return the same JSP page with the message
+            }
+
+            List<Courses> courses = courseDAO.getCourseByContributorId(contributor.getContributorId());
+
+            if (courses == null || courses.isEmpty()) {
+                model.addAttribute("message", "No study sessions found.");
+            } else {
+                model.addAttribute("courses", courses);
+            }
+
+            return "my-courses"; // Return the JSP page
+        } else {
+            model.addAttribute("message", "courses not found.");
+            return "my-courses";
+        }
+    }
+    
+    // API to delete a course
+    @DeleteMapping("/delete-course.htm/{courseId}")
+    public ResponseEntity<String> deleteCourse(HttpServletRequest request,@PathVariable long courseId) {
+        try {
+            courseDAO.deleteCourse(courseId);
+            return ResponseEntity.ok("Course Deleted Successfully!");
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    
+    
+  
+
+    
+    
+}
+
+
+---------------------------------------------------
+
+
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.webtools.ayasha.WebProject.controller;
+
+import com.webtools.ayasha.WebProject.dao.ContributorDAO;
+import com.webtools.ayasha.WebProject.dao.CourseDAO;
+import com.webtools.ayasha.WebProject.dao.SessionDAO;
+import com.webtools.ayasha.WebProject.dao.StudentDAO;
+import com.webtools.ayasha.WebProject.model.Contributor;
+import com.webtools.ayasha.WebProject.model.Courses;
+import com.webtools.ayasha.WebProject.model.Student;
+import com.webtools.ayasha.WebProject.model.StudySession;
+import com.webtools.ayasha.WebProject.service.StudentService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Optional;
+import org.hibernate.Length;
+import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+/**
+ *
+ * @author ayashakhan
+ */
+@Controller
+@RequestMapping("/student")
+public class StudentController {
+    private final StudentDAO studentDAO;
+    private final CourseDAO courseDAO;
+    private final SessionDAO sessionDAO;
+    private final ContributorDAO contributorDAO;
+
+    @Autowired
+    public StudentController(StudentDAO studentDAO, CourseDAO courseDAO,SessionDAO sessionDAO, ContributorDAO contributorDAO ) {
+        this.studentDAO = studentDAO;
+        this.sessionDAO = sessionDAO;
+        this.courseDAO = courseDAO;
+        this.contributorDAO = contributorDAO;
+    }
+
+    @GetMapping("/allStudents")
+    @ResponseBody
+    public List<Student> getAllStudents() {
+        
+        return studentDAO.getAllStudents();
+    }
+    
+
+    @GetMapping("/home.htm")
+    public String homePage(HttpSession session, Model model) {
+        System.out.println("hit home student");
+        String role = (String) session.getAttribute("role");
+        String emailId = (String) session.getAttribute("emailId");
+
+        if ("student".equalsIgnoreCase(role)) {
+            Student student = studentDAO.findByEmailId(emailId); // Fetch student details
+            if (student != null) {
+                model.addAttribute("authenticatedUser", student);
+            }
+        } 
+
+        model.addAttribute("role", role);
+        return "home";
+    }
+
+    
+    @PutMapping("/update/{emailId}")
+    public String updateStudent(HttpServletRequest request,@PathVariable String emailId, @RequestBody Student updatedStudent) {
+        // Find the student by ID
+        HttpSession httpSession = request.getSession(false);
+        if(httpSession != null) {
+            Student student = studentDAO.findByEmailId(emailId);
+            if (student != null) {
+                Student existingStudent = student;
+
+                // Update the fields
+                existingStudent.setFirstName(updatedStudent.getFirstName());
+                existingStudent.setLastName(updatedStudent.getLastName());
+                existingStudent.setMajor(updatedStudent.getMajor());
+
+
+                // Update the student in the database
+                studentDAO.updateStudent(existingStudent);
+                return "Student updated successfully.";
+            } else {
+                return "Student not found.";
+            }
+        }
+        return "redirect:/login.htm?logout=true";
+}   
+    
+    
+    
+    @GetMapping("/{emailId}")
+    @ResponseBody
+    public ResponseEntity<Student> getStudentProfile(HttpServletRequest request,@PathVariable String emailId) {
+        HttpSession httpSession = request.getSession(false);
+        if(httpSession != null) {
+            Student studentOptional = studentDAO.findByEmailId(emailId);
+            if (studentOptional != null) {
+                return ResponseEntity.ok(studentOptional);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        }else{
+            return ResponseEntity.notFound().build();
+        }
+    }
+    
+    @GetMapping("/logout.htm")
+    public String logout(HttpServletRequest request, HttpServletResponse response) {
+        HttpSession session = request.getSession(false);
+        if(session != null) {
+            session.invalidate();
+        }
+        return "redirect:/login.htm?logout=true";
+    }
+    
+
+
+    @GetMapping("/my-sessions.htm/{emailId}")
+    public String getSessionbyStudentEmail(HttpServletRequest request, @PathVariable String emailId, Model model) {
+        HttpSession httpSession = request.getSession(false);
+        if (httpSession != null) {
+            Student student = studentDAO.findByEmailId(emailId);
+
+            if (student == null) {
+                model.addAttribute("message", "Student not found.");
+                return "my-sessions"; // Return the same JSP page with the message
+            }
+
+            List<StudySession> studySessions = sessionDAO.getSessionsByStudentId(student.getStudentId());
+
+            if (studySessions == null || studySessions.isEmpty()) {
+                model.addAttribute("message", "No study sessions found.");
+            } else {
+                model.addAttribute("studySessions", studySessions);
+            }
+
+            return "my-sessions"; // Return the JSP page
+        } else {
+            model.addAttribute("message", "Session not found.");
+            return "my-sessions";
+        }
+    }
+    
+    
+    @GetMapping("/view-courses.htm")
+    public String getCoursesForStudent(HttpServletRequest request, Model model) {
+        List<Courses> courses = courseDAO.getAllCourses(); 
+        model.addAttribute("courses", courses);
+        return "all-courses"; 
+    }
+    
+    
+    @GetMapping("/add-session-success.htm")
+    public String courseAddSuccess(HttpServletRequest request, HttpServletResponse response){
+        return "schedule-session-success";
+    }
+    
+    @GetMapping("/add-session.htm/{emailId}")
+    public String showAddCourseForm(@PathVariable String emailId,
+                                    HttpSession session,
+                                    Model model) {
+
+        // Store the emailId in the session if needed
+        System.out.println("inside to get session add ");
+        session.setAttribute("emailId", emailId);
+
+        // Fetch the contributor based on the emailId
+        Student student = studentDAO.findByEmailId(emailId);
+
+        // Add the contributor to the model if needed
+        model.addAttribute("student", student);
+
+        // Return the view name for adding a course
+        return "add-session";
+    }
+    
+    
+    @PostMapping("/add-session.htm")
+    public String addCourse(@RequestParam LocalDate date,
+                            @RequestParam LocalTime time,
+                            @RequestParam int courseId,
+                            @RequestParam(required = false) String emailId,
+                            HttpSession session,
+                            RedirectAttributes redirectAttributes) {
+
+        // If emailId is provided in the request parameter, use it; otherwise, fall back to the session attribute
+        if (emailId == null) {
+            emailId = (String) session.getAttribute("emailId");
+        }
+//
+//        // Logging to check if emailId is received
+        System.out.println("Email ID in addSession POST: " + emailId);
+//
+        if (emailId == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Session expired or email ID not found.");
+            return "redirect:/login.htm";
+        }
+//
+//        // Find the contributor by emailId
+        Student student = studentDAO.findByEmailId(emailId);
+
+        if (student == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Student not found");
+            return "redirect:/student/home.htm?emailId=" + emailId;
+        }
+        
+        if(courseId == 0){
+            redirectAttributes.addFlashAttribute("errorMessage", "CourseId needed");
+            return "redirect:/student/home.htm?emailId=" + emailId;
+        }
+        
+        Courses course = courseDAO.getCourseById((long)courseId);
+        if(course == null){
+            redirectAttributes.addFlashAttribute("errorMessage", "Course not found");
+            return "redirect:/student/home.htm?emailId=" + emailId;
+        }
+        
+//        Contributor contributor = contributorDAO.findById(course.getContributor());
+//        long contributorId = course.getContributor().getContributorId();
+//
+//        // Create and save the course
+        StudySession studySession = new StudySession();
+        studySession.setDate(date);
+        studySession.setTime(time);
+        studySession.setContributor(course.getContributor());
+        studySession.setStudent(student);
+        studySession.setCourse(course);
+//
+        sessionDAO.createSession(studySession);
+
+        return "redirect:/student/add-session-success.htm";
+    }
+    
+}
+
+
+
+-------------------------------------
+
+
+
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.webtools.ayasha.WebProject.controller;
+
+import com.webtools.ayasha.WebProject.dao.CourseDAO;
+import com.webtools.ayasha.WebProject.model.Courses;
+import com.webtools.ayasha.WebProject.service.CourseService;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ *
+ * @author ayashakhan
+ */
+
+@RestController
+@RequestMapping("/courses")
+public class CourseController {
+    
+    private final CourseDAO courseDAO;
+
+    @Autowired
+    public CourseController(CourseDAO courseDAO) {
+        this.courseDAO = courseDAO;
+    }
+    
+    
+    // API to get course by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Courses> getCourseById(@PathVariable("id") int courseId) {
+        Courses course = courseDAO.getCourseById(courseId);
+        if (course != null) {
+            return ResponseEntity.ok(course);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    
+    // API to get course by name
+    @GetMapping("/name/{courseName}")
+    public ResponseEntity<Courses> getCourseByName(@PathVariable("courseName") String courseName) {
+        Courses course = courseDAO.getCourseByName(courseName);
+        if (course != null) {
+            return ResponseEntity.ok(course);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    
+    // API to update course details
+    @PutMapping("/{courseId}")
+    public ResponseEntity<Courses> updateCourse(@PathVariable int courseId, @RequestBody Courses course) {
+        course.setCourseId(courseId);
+        try {
+            courseDAO.updateCourse(course);
+            return ResponseEntity.ok(course);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    
+    
+}
+
+ 
+
+-----------------------------------------------
+
+
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.webtools.ayasha.WebProject.controller;
+
+import com.webtools.ayasha.WebProject.dao.SessionDAO;
+import com.webtools.ayasha.WebProject.model.StudySession;
+import com.webtools.ayasha.WebProject.service.SessionService;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ *
+ * @author ayashakhan
+ */
+
+
+@RestController
+@RequestMapping("/sessions")
+public class SessionController {
+    
+    private final SessionDAO sessionDAO;
+
+    @Autowired
+    public SessionController(SessionDAO sessionDAO) {
+        this.sessionDAO = sessionDAO;
+    }
+    
+    
+    // Get all sessions
+    @GetMapping
+    public ResponseEntity<List<StudySession>> getAllSessions() {
+        List<StudySession> sessions = sessionDAO.getAllSessions();
+        return ResponseEntity.ok(sessions);
+    }
+
+    // Create a new session
+    @PostMapping
+    public ResponseEntity<StudySession> createSession(@RequestBody StudySession session) {
+        StudySession createdSession = sessionDAO.createSession(session);
+        return ResponseEntity.ok(createdSession);
+    }
+
+    // Update an existing session
+    @PutMapping("/{id}")
+    public ResponseEntity<StudySession> updateSession(@PathVariable int id, @RequestBody StudySession session) {
+        StudySession updatedSession = sessionDAO.updateSession(id, session);
+        return updatedSession != null ? ResponseEntity.ok(updatedSession) : ResponseEntity.notFound().build();
+    }
+
+   
+
+    // View sessions by courseId
+    @GetMapping("/course/{courseId}")
+    public ResponseEntity<List<StudySession>> getSessionsByCourseId(@PathVariable int courseId) {
+        List<StudySession> sessions = sessionDAO.getSessionsByCourseId(courseId);
+        return ResponseEntity.ok(sessions);
+    }
+
+    // View sessions by contributorId
+    @GetMapping("/contributor/{contributorId}")
+    public ResponseEntity<List<StudySession>> getSessionsByContributorId(@PathVariable int contributorId) {
+        List<StudySession> sessions = sessionDAO.getSessionsByContributorId(contributorId);
+        return ResponseEntity.ok(sessions);
+    }
+
+    // View sessions by studentId
+    @GetMapping("/student/{studentId}")
+    public ResponseEntity<List<StudySession>> getSessionsByStudentId(@PathVariable int studentId) {
+        List<StudySession> sessions = sessionDAO.getSessionsByStudentId(studentId);
+        return ResponseEntity.ok(sessions);
+    }
+}
+
+
